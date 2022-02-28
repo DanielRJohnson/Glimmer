@@ -1,5 +1,5 @@
 # Welcome to Glimmer ✨
-Glimmer is a dynamically-typed scripting language with support for first-class functions with closures, basic types, arrays, dictionaries, and much more.
+Glimmer is a dynamically-typed scripting language with support for first-class functions with closures, statically-scoped variables, basic types, arrays, dictionaries, and much more.
 
 This implementation of Glimmer comes with a complete Read-Eval-Print-Loop (REPL), Read-Parse-Print-Loop (RPPL), and Read-Lex-Print-Loop (RLPL). Of course, you can also execute source files directly.
 
@@ -21,4 +21,4 @@ TODO README SECTION
 * Bytecode interpreter (wayyyyyy down the road)
 
 # Credit
-Much of the methodologies, code, and knowledge in the writing of this came from Thorsten Ball's book, Writing an Interpreter in Go. I wrote every line in this repo character by character without copying, changed methods where I saw fit, and added much on top of the code from this book. Reading this was a great inspiration, and I give my sincere thanks to Mr. Ball. Check out the book at https://interpreterbook.com/.
+Much of the methodologies, code, and knowledge in the writing of this came from Thorsten Ball's book, Writing an Interpreter in Go. I wrote every line in this repo character by character without copy-pasting, changed methods where I saw fit, and added much on top of the code from this book. Reading this was a great inspiration, and I give my sincere thanks to Mr. Ball. Check out the book at https://interpreterbook.com/.
