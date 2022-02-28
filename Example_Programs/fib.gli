@@ -1,0 +1,13 @@
+let n = 20
+
+let fib = fn(fibnum) {
+    if fibnum == 0 {
+        0
+    } else if fibnum == 1 {
+        1
+    } else {
+        return fib(fibnum - 1) + fib(fibnum - 2)
+    }
+}
+
+print(fib(n))
