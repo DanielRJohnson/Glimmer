@@ -58,6 +58,19 @@ func (e *Environment) Set(name string, val Object) Object {
 	return val
 }
 
+func (e *Environment) DeepCopy() *Environment {
+	newEnv := &Environment{}
+	if e.outer != nil {
+		newEnv.outer = e.outer.DeepCopy()
+	}
+	newStore := make(map[string]Object)
+	for key, val := range e.store {
+		newStore[key] = val
+	}
+	newEnv.store = newStore
+	return newEnv
+}
+
 type Function struct {
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement

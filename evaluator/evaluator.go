@@ -30,6 +30,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return val
 		}
 		env.Set(node.Name.Value, val)
+		if fun, ok := val.(*object.Function); ok {
+			fun.Env.Set(node.Name.Value, val) // fn name goes in fn's environment, allows recursion
+		}
 		return val
 
 	case *ast.ExpressionStatement:
@@ -84,7 +87,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.FunctionLiteral:
 		params := node.Parameters
 		body := node.Body
-		return &object.Function{Parameters: params, Env: env, Body: body}
+		return &object.Function{Parameters: params, Env: env.DeepCopy(), Body: body}
+		// deepcopy for static scoping, no copy = dynamic scoping
 
 	case *ast.Identifier:
 		return evalIdentifier(node, env)

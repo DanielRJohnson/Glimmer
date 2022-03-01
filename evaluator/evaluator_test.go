@@ -185,13 +185,39 @@ func TestBuiltinFunctions(t *testing.T) {
 func TestClosures(t *testing.T) {
 	input := `
 	let newAdder = fn(x) {
-		fn(y) { x + y};
+		fn(y) { x + y };
 	};
 
 	let addTwo = newAdder(2);
 	addTwo(2);`
 
 	testLiteralObject(t, testEval(input), 4)
+}
+
+func TestStaticScoping(t *testing.T) {
+	input := `
+	let n = 5;
+	let addN = fn(x) { x + n };
+	let n = 6;
+	addN(5);`
+
+	testLiteralObject(t, testEval(input), 10)
+}
+
+func TestRecursion(t *testing.T) {
+	input := `
+	let fib = fn(fibnum) {
+		if fibnum == 0 {
+			0
+		} else if fibnum == 1 {
+			1
+		} else {
+			return fib(fibnum - 1) + fib(fibnum - 2)
+		}
+	}
+	fib(5)`
+
+	testLiteralObject(t, testEval(input), 5)
 }
 
 func TestEvalIntegerExpression(t *testing.T) {
