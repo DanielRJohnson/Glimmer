@@ -6,7 +6,7 @@ let fib = fn(fibnum) {
     } else if fibnum == 1 {
         1
     } else {
-        return fib(fibnum - 1) + fib(fibnum - 2)
+        fib(fibnum - 1) + fib(fibnum - 2)
     }
 }
 

@@ -125,10 +125,10 @@ digraph structs {
   46:f3 -> 68:name;
   69 [label="<name> *ast.InfixExpression"];
   69:name -> 46:name;
-  45 [label="<name> ReturnStatement |<f0> Token|<f1> ReturnValue "];
+  45 [label="<name> ExpressionStatement |<f0> Token|<f1> Expression "];
   45:f0 -> 45:name;
   45:f1 -> 69:name;
-  70 [label="<name> *ast.ReturnStatement"];
+  70 [label="<name> *ast.ExpressionStatement"];
   70:name -> 45:name;
   43:<44index0> -> 70:name;
   43 [label="<name> BlockStatement |<f0> Token|{<f1> Statements | {<44index0> 0}}  "];
