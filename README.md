@@ -34,7 +34,9 @@ This implementation of Glimmer comes with a complete Read-Eval-Print-Loop (REPL)
 * When evaluating and parsing, you can also use the flag --dot to generate a dotfile & image for the AST of your input.
 
 # TODO
-* Loops
+* Non-recursive Loops (for, while)
+* Line and Col in parser error messages
+* OS interaction (exec, input, etc)
 * Imports & standard library
 * More builtins (casts, etc.)
 * Static typing (maybe separate fork or something)
