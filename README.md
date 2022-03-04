@@ -41,6 +41,7 @@ This implementation of Glimmer comes with a complete Read-Eval-Print-Loop (REPL)
 * V1.1: Added "For" construct as well as assignment and arithmetic assignment (i.e. +=)
 
 # TODO
+* Multi-statement if conditions and *possibly* loop scope
 * Line and Col in parser error messages
 * OS interaction (exec, input, etc)
 * Imports & standard library
