@@ -18,9 +18,17 @@ func (p *Parser) parseStatement() ast.Statement {
 			return p.parseExpressionStatement()
 		}
 	case token.BREAK:
-		return &ast.BreakStatement{Token: p.curToken}
+		br := &ast.BreakStatement{Token: p.curToken}
+		if p.peekTokenIs(token.SEMICOL) {
+			p.nextToken()
+		}
+		return br
 	case token.CONT:
-		return &ast.ContinueStatement{Token: p.curToken}
+		ct := &ast.ContinueStatement{Token: p.curToken}
+		if p.peekTokenIs(token.SEMICOL) {
+			p.nextToken()
+		}
+		return ct
 	default:
 		return p.parseExpressionStatement()
 	}
