@@ -18,8 +18,10 @@ import (
 * 5. PREFIX EXPRESSIONS
 * 6. INFIX EXPRESSIONS
 * 7. IF EXPRESSIONS
-* 8. CALL EXPRESSIONS
-* 9. INDEX EXPRESSIONS
+* 8. FOR EXPRESSIONS
+* 9. WHILE EXPRESSIONS
+* 10. CALL EXPRESSIONS
+* 11. INDEX EXPRESSIONS
 *
 * (CTRL + F) IF NEEDED
  */
@@ -919,6 +921,152 @@ func TestIfElifExpression(t *testing.T) {
 
 	if exp.FalseBranch != nil {
 		t.Errorf("exp.Alternative was not nil. got=%+v", exp.FalseBranch)
+	}
+}
+
+/*
+* FOR EXPRESSION TESTS
+ */
+
+func TestForExpression(t *testing.T) {
+	input := "for x; y, z, w { u }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	forExp, ok := stmt.Expression.(*ast.ForExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ForExpression. got=%T", stmt.Expression)
+	}
+
+	if len(forExp.ForPrecondition) != 2 {
+		t.Fatalf("forExp.ForPrecondition is not 2 statements. got=%d", len(forExp.ForPrecondition))
+	}
+	if len(forExp.ForCondition) != 1 {
+		t.Fatalf("forExp.ForCondition is not 1 statement. got=%d", len(forExp.ForCondition))
+	}
+	if len(forExp.ForPostcondition) != 1 {
+		t.Fatalf("forExp.ForPostcondition is not 1 statement. got=%d", len(forExp.ForPostcondition))
+	}
+	if !testIdentifier(t, forExp.ForPrecondition[0].(*ast.ExpressionStatement).Expression, "x") {
+		return
+	}
+	if !testIdentifier(t, forExp.ForPrecondition[1].(*ast.ExpressionStatement).Expression, "y") {
+		return
+	}
+	if !testIdentifier(t, forExp.ForCondition[0].(*ast.ExpressionStatement).Expression, "z") {
+		return
+	}
+	if !testIdentifier(t, forExp.ForPostcondition[0].(*ast.ExpressionStatement).Expression, "w") {
+		return
+	}
+	if !testIdentifier(t, forExp.Body.Statements[0].(*ast.ExpressionStatement).Expression, "u") {
+		return
+	}
+}
+
+func TestForExpressionOnlyCondition(t *testing.T) {
+	input := "for let x = true; false || x { u }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	forExp, ok := stmt.Expression.(*ast.ForExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ForExpression. got=%T", stmt.Expression)
+	}
+
+	if len(forExp.ForPrecondition) != 0 {
+		t.Fatalf("forExp.ForPrecondition is not 0 statements. got=%d", len(forExp.ForPrecondition))
+	}
+	if len(forExp.ForCondition) != 2 {
+		t.Fatalf("forExp.ForCondition is not 1 statement. got=%d", len(forExp.ForCondition))
+	}
+	if len(forExp.ForPostcondition) != 0 {
+		t.Fatalf("forExp.ForPostcondition is not 0 statements. got=%d", len(forExp.ForPostcondition))
+	}
+	if !testIdentifier(t, forExp.Body.Statements[0].(*ast.ExpressionStatement).Expression, "u") {
+		return
+	}
+}
+
+func TestForExpressionOnlyConditionAndPostCondition(t *testing.T) {
+	input := "for x < 2, let x = x + 1 { u }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	forExp, ok := stmt.Expression.(*ast.ForExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ForExpression. got=%T", stmt.Expression)
+	}
+
+	if len(forExp.ForPrecondition) != 0 {
+		t.Fatalf("forExp.ForPrecondition is not 0 statements. got=%d", len(forExp.ForPrecondition))
+	}
+	if len(forExp.ForCondition) != 1 {
+		t.Fatalf("forExp.ForCondition is not 1 statement. got=%d", len(forExp.ForCondition))
+	}
+	if len(forExp.ForPostcondition) != 1 {
+		t.Fatalf("forExp.ForPostcondition is not 0 statements. got=%d", len(forExp.ForPostcondition))
+	}
+	if !testIdentifier(t, forExp.Body.Statements[0].(*ast.ExpressionStatement).Expression, "u") {
+		return
+	}
+}
+
+func TestBreakAndContinue(t *testing.T) {
+	input := "break; continue;"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 2, len(program.Statements))
+	}
+
+	_, ok := program.Statements[0].(*ast.BreakStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.BreakStatement. got=%T", program.Statements[0])
+	}
+	_, ok = program.Statements[1].(*ast.ContinueStatement)
+	if !ok {
+		t.Fatalf("program.Statements[1] is not ast.ContinueStatement. got=%T", program.Statements[0])
 	}
 }
 

@@ -398,6 +398,39 @@ func TestIfElifElseExpressions(t *testing.T) {
 	}
 }
 
+func TestForExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"for let x = 0, x < 10, let x = x + 1 { }; x", 10},
+		{"let x = 0; for x < 10, let x = x + 1 { }; x", 10},
+		{"let x = 0; for x < 10 { let x = x + 1 }", 10},
+		{"for x {}", "identifier not found: x"},
+		{"for (let x = 1, x < 10, x += 1){ break; }; x", 1},
+		{"for (let i = 0; let x = 0, i < 10, i += 1) { x += 1; continue; x += 1 }; x", 10},
+		{"let x = 0; for { x += 1; if x >= 10 { break } }; x", 10},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		switch expected := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, evaluated, int64(expected))
+		case string:
+			errObj, ok := evaluated.(*object.Error)
+			if !ok {
+				t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
+				continue
+			}
+			if errObj.Message != expected {
+				t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
+			}
+		}
+	}
+}
+
 func TestReturnStatements(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -429,6 +462,35 @@ func TestLetStatements(t *testing.T) {
 
 	for _, tt := range tests {
 		testLiteralObject(t, testEval(tt.input), tt.expected)
+	}
+}
+
+func TestAssignExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"let x = 5; x = 6; x", 6},
+		{"let x = 5; x += 6; x", 11},
+		{"x = 5", "identifier not found: x"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		switch expected := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, evaluated, int64(expected))
+		case string:
+			errObj, ok := evaluated.(*object.Error)
+			if !ok {
+				t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
+				continue
+			}
+			if errObj.Message != expected {
+				t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
+			}
+		}
 	}
 }
 

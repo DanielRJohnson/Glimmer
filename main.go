@@ -22,7 +22,7 @@ func main() {
 		printUsageAndDie()
 	}
 
-	if *evalFlag || len(positionalArgs) == 0 {
+	if *evalFlag || (len(positionalArgs) == 0 && !*parseFlag && !*lexFlag) {
 		printService("REPL")
 		executor.StartREPL(os.Stdin, os.Stdout, *dotFlag)
 	} else if *parseFlag {

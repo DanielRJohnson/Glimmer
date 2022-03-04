@@ -10,6 +10,8 @@ var (
 	NULL  = &object.Null{}
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
+	BREAK = &object.Break{}
+	CONT  = &object.Continue{}
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
@@ -35,6 +37,26 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return val
 
+	case *ast.AssignStatement:
+		prevVal, ok := env.Get(node.Name.Value)
+		if !ok {
+			return newError("identifier not found: %s", node.Name.Value)
+		}
+		val := Eval(node.Value, env)
+		if isError(val) {
+			return val
+		}
+
+		if node.Type != "=" {
+			val = evalInfixExpression(string(node.Type[0]), prevVal, val)
+		}
+
+		env.Set(node.Name.Value, val)
+		if fun, ok := val.(*object.Function); ok {
+			fun.Env.Set(node.Name.Value, val) // fn name goes in fn's environment, allows recursion
+		}
+		return val
+
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 
@@ -43,6 +65,15 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
+
+	case *ast.ForExpression:
+		return evalForExpression(node, env)
+
+	case *ast.BreakStatement:
+		return BREAK
+
+	case *ast.ContinueStatement:
+		return CONT
 
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, env)

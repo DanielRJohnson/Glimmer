@@ -7,12 +7,19 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := ": ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. let fn $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; "
+	input := "+= -= *= /= for break continue : ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. let fn $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; "
 
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
+		{token.PLUSEQ, "+="},
+		{token.MINUSEQ, "-="},
+		{token.MULTEQ, "*="},
+		{token.DIVEQ, "/="},
+		{token.FOR, "for"},
+		{token.BREAK, "break"},
+		{token.CONT, "continue"},
 		{token.COLON, ":"},
 		{token.EQ, "=="},
 		{token.NEQ, "!="},

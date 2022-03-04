@@ -11,6 +11,16 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
+	case token.ID:
+		if isAssign(p.peekToken.Type) {
+			return p.parseAssignStatement()
+		} else {
+			return p.parseExpressionStatement()
+		}
+	case token.BREAK:
+		return &ast.BreakStatement{Token: p.curToken}
+	case token.CONT:
+		return &ast.ContinueStatement{Token: p.curToken}
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -30,6 +40,23 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	}
 
 	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOL) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseAssignStatement() *ast.AssignStatement {
+	stmt := &ast.AssignStatement{Token: p.peekToken, Type: p.peekToken.Type}
+
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	p.nextToken() // curtok = assign
+	p.nextToken() // curtok = value
 
 	stmt.Value = p.parseExpression(LOWEST)
 

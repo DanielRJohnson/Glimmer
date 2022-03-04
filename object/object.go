@@ -21,6 +21,8 @@ const (
 	BOOLEAN_OBJ      = "BOOLEAN"
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
+	BREAK_OBJ        = "BREAK"
+	CONT_OBJ         = "CONT"
 	ERROR_OBJ        = "ERROR"
 )
 
@@ -164,6 +166,16 @@ type ReturnValue struct {
 
 func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
 func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
+
+type Break struct{}
+
+func (bv *Break) Type() ObjectType { return BREAK_OBJ }
+func (bv *Break) Inspect() string  { return "break" }
+
+type Continue struct{}
+
+func (cv *Continue) Type() ObjectType { return CONT_OBJ }
+func (cv *Continue) Inspect() string  { return "continue" }
 
 type Error struct {
 	Message string

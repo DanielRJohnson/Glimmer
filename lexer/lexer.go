@@ -52,9 +52,23 @@ func (l *Lexer) NextToken() token.Token {
 	case ',':
 		tok = newToken(token.COMMA, l.ch)
 	case '+':
-		tok = newToken(token.PLUS, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			tok = token.Token{Type: token.PLUSEQ, Literal: literal}
+		} else {
+			tok = newToken(token.PLUS, l.ch)
+		}
 	case '-':
-		tok = newToken(token.MINUS, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			tok = token.Token{Type: token.MINUSEQ, Literal: literal}
+		} else {
+			tok = newToken(token.MINUS, l.ch)
+		}
 	case '!':
 		if l.peekChar() == '=' {
 			ch := l.ch
@@ -65,9 +79,23 @@ func (l *Lexer) NextToken() token.Token {
 			tok = newToken(token.NOT, l.ch)
 		}
 	case '/':
-		tok = newToken(token.DIV, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			tok = token.Token{Type: token.DIVEQ, Literal: literal}
+		} else {
+			tok = newToken(token.DIV, l.ch)
+		}
 	case '*':
-		tok = newToken(token.MULT, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			tok = token.Token{Type: token.MULTEQ, Literal: literal}
+		} else {
+			tok = newToken(token.MULT, l.ch)
+		}
 	case '>':
 		if l.peekChar() == '=' {
 			ch := l.ch
