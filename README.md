@@ -33,8 +33,11 @@ This implementation of Glimmer comes with a complete Read-Eval-Print-Loop (REPL)
 * To open the Glimmer RLPL, run `glimmer -l`
 * When evaluating and parsing, you can also use the flag --dot to generate a dotfile & image for the AST of your input.
 
+# Changelog
+* V1.0: Base Language Push
+* V1.1: Added "For" construct as well as assignment and arithmetic assignment (i.e. +=)
+
 # TODO
-* Non-recursive Loops (for, while)
 * Line and Col in parser error messages
 * OS interaction (exec, input, etc)
 * Imports & standard library
