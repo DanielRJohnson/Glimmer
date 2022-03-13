@@ -23,6 +23,9 @@ This implementation of Glimmer comes with a complete Read-Eval-Print-Loop (REPL)
 ### Statically-Scoped Variables
 <img src="https://github.com/DanielRJohnson/Glimmer/blob/main/_examles/terminal%20images/static%20scoping.png" alt="static variable example" width="66%"/>
 
+### Loops
+<img src="https://github.com/DanielRJohnson/Glimmer/blob/main/_examles/terminal%20images/for.png" alt="for loops example" width="66%"/>
+
 ### Recursion
 <img src="https://github.com/DanielRJohnson/Glimmer/blob/main/_examles/terminal%20images/recursion.png" alt="recursion example" width="66%"/>
 
@@ -31,13 +34,14 @@ This implementation of Glimmer comes with a complete Read-Eval-Print-Loop (REPL)
 * To open the Glimmer REPL, run `glimmer`
 * To open the Glimmer RPPL, run `glimmer -p`
 * To open the Glimmer RLPL, run `glimmer -l`
-* When evaluating and parsing, you can also use the flag --dot to generate a dotfile & image for the AST of your input.
+* When evaluating and parsing, you can also use the flag `--dot` to generate a dotfile & image for the AST of your input.
 
 # Changelog
 * V1.0: Base Language Push
 * V1.1: Added "For" construct as well as assignment and arithmetic assignment (i.e. +=)
 
 # TODO
+* Multi-statement if conditions and *possibly* loop scope
 * Line and Col in parser error messages
 * OS interaction (exec, input, etc)
 * Imports & standard library
