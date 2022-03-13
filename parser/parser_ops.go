@@ -24,7 +24,7 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
-		p.peekError(t)
+		p.peekError(t, p.curToken.Line, p.curToken.Col)
 		return false
 	}
 }
@@ -33,14 +33,14 @@ func (p *Parser) Errors() []string {
 	return p.errors
 }
 
-func (p *Parser) maxOccuranceError(t token.TokenType, place string) {
-	msg := fmt.Sprintf("maximum number of %s reached in %s", t, place)
+func (p *Parser) maxOccuranceError(t token.TokenType, place string, line int, col int) {
+	msg := fmt.Sprintf("[%d,%d]: maximum number of %s reached in %s", line, col, t, place)
 	p.errors = append(p.errors, msg)
 }
 
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
-		t, p.peekToken.Type)
+func (p *Parser) peekError(t token.TokenType, line int, col int) {
+	msg := fmt.Sprintf("[%d,%d]: expected next token to be %s, got %s instead",
+		line, col, t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
@@ -57,8 +57,8 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
 
-func (p *Parser) noPrefixParseFnError(t token.TokenType) {
-	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+func (p *Parser) noPrefixParseFnError(t token.TokenType, line int, col int) {
+	msg := fmt.Sprintf("[%d,%d]: no prefix parse function for %s found", line, col, t)
 	p.errors = append(p.errors, msg)
 }
 

@@ -8,7 +8,7 @@ import (
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
-		p.noPrefixParseFnError(p.curToken.Type)
+		p.noPrefixParseFnError(p.curToken.Type, p.curToken.Line, p.curToken.Col)
 		return nil
 	}
 	leftExp := prefix()
@@ -67,8 +67,10 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 func (p *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: p.curToken}
 
-	p.nextToken()
-	expression.Condition = p.parseExpression(LOWEST)
+	for !p.peekTokenIs(token.LBRACE) {
+		p.nextToken() // cur = IF , peek = first of cond
+		expression.Condition = append(expression.Condition, p.parseStatement())
+	}
 
 	if !p.expectPeek(token.LBRACE) {
 		return nil
@@ -83,13 +85,14 @@ func (p *Parser) parseIfExpression() ast.Expression {
 
 		if p.peekTokenIs(token.IF) { // elif
 			p.nextToken() //curToken = If
-			p.nextToken() //curToken = first token of expression
-			expression.ElifConditions = append(expression.ElifConditions, p.parseExpression(LOWEST))
 
-			if !p.expectPeek(token.LBRACE) {
-				return nil
+			condStmts := []ast.Statement{}
+			for !p.peekTokenIs(token.LBRACE) {
+				p.nextToken() //curToken = first token of condition statement
+				condStmts = append(condStmts, p.parseStatement())
 			}
-
+			p.nextToken()
+			expression.ElifConditions = append(expression.ElifConditions, condStmts)
 			expression.ElifBranches = append(expression.ElifBranches, p.parseBlockStatement())
 		} else { // else
 			if !p.expectPeek(token.LBRACE) || hasEncounteredElse {
@@ -117,18 +120,12 @@ func (p *Parser) parseForExpression() ast.Expression {
 		return fe
 	}
 
-	hasOptionalParen := false
-	if p.peekTokenIs(token.LPAR) {
-		p.nextToken()
-		hasOptionalParen = true
-	}
-
 	section1 := []ast.Statement{}
 	section2 := []ast.Statement{}
 	section3 := []ast.Statement{}
 	commaCounter := 0
 
-	for !p.peekTokenIs(token.LBRACE) && !(hasOptionalParen && p.peekTokenIs(token.RPAR)) {
+	for !p.peekTokenIs(token.LBRACE) {
 		p.nextToken()
 		switch commaCounter {
 		case 0:
@@ -138,17 +135,13 @@ func (p *Parser) parseForExpression() ast.Expression {
 		case 2:
 			section3 = append(section3, p.parseStatement())
 		case 3:
-			p.maxOccuranceError(token.COMMA, "ForExpression")
+			p.maxOccuranceError(token.COMMA, "ForExpression", p.curToken.Line, p.curToken.Col)
 			return nil
 		}
 		if p.peekTokenIs(token.COMMA) {
 			commaCounter++
 			p.nextToken()
 		}
-	}
-
-	if hasOptionalParen && !p.expectPeek(token.RPAR) {
-		return nil
 	}
 
 	if len(section2) == 0 && len(section3) == 0 { // only condition

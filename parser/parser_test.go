@@ -697,7 +697,7 @@ func testInfixExpression(t *testing.T, exp ast.Expression, left interface{}, ope
  */
 
 func TestIfExpression(t *testing.T) {
-	input := "if (x < y) { x }"
+	input := "if x < y { x }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -717,7 +717,7 @@ func TestIfExpression(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmt.Expression is not ast.IfExpression. got=%T", stmt.Expression)
 	}
-	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
+	if !testInfixExpression(t, exp.Condition[0].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
 		return
 	}
 	if len(exp.TrueBranch.Statements) != 1 {
@@ -734,6 +734,128 @@ func TestIfExpression(t *testing.T) {
 
 	if exp.FalseBranch != nil {
 		t.Errorf("exp.Alternative was not nil. got=%+v", exp.FalseBranch)
+	}
+}
+
+func TestMultiIfExpression(t *testing.T) {
+	input := "if let x = 5; (x < y) { x }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.IfExpression. got=%T", stmt.Expression)
+	}
+
+	if len(exp.Condition) != 2 {
+		t.Fatalf("exp.Condition is not %d statements. got=%d\n", 2, len(exp.Condition))
+	}
+
+	if !testInfixExpression(t, exp.Condition[1].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
+		return
+	}
+	if len(exp.TrueBranch.Statements) != 1 {
+		t.Errorf("consequence is not %d statements. got=%d\n", 1, len(exp.TrueBranch.Statements))
+	}
+
+	consequence, ok := exp.TrueBranch.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("consequence.Statements[0] is not an ast.ExpressionStatement. got=%T", exp.TrueBranch.Statements[0])
+	}
+	if !testIdentifier(t, consequence.Expression, "x") {
+		return
+	}
+
+	if exp.FalseBranch != nil {
+		t.Errorf("exp.Alternative was not nil. got=%+v", exp.FalseBranch)
+	}
+}
+
+func TestMultiIfElifExpression(t *testing.T) {
+	input := "if let x = 5; (x < y) { x } else if let y = 5; y > x { y } else if let z = 5; z > y { z } else { w }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.IfExpression. got=%T", stmt.Expression)
+	}
+
+	if len(exp.Condition) != 2 {
+		t.Fatalf("exp.Condition is not %d statements. got=%d\n", 2, len(exp.Condition))
+	}
+
+	if !testInfixExpression(t, exp.Condition[1].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
+		return
+	}
+	if len(exp.TrueBranch.Statements) != 1 {
+		t.Errorf("consequence is not %d statements. got=%d\n", 1, len(exp.TrueBranch.Statements))
+	}
+
+	consequence, ok := exp.TrueBranch.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("consequence.Statements[0] is not an ast.ExpressionStatement. got=%T", exp.TrueBranch.Statements[0])
+	}
+	if !testIdentifier(t, consequence.Expression, "x") {
+		return
+	}
+
+	if len(exp.ElifConditions[0]) != 2 {
+		t.Fatalf("exp.ElifConditions[0] is not %d statements. got=%d\n", 2, len(exp.ElifConditions[0]))
+	}
+	if !testInfixExpression(t, exp.ElifConditions[0][1].(*ast.ExpressionStatement).Expression, "y", ">", "x") {
+		return
+	}
+	if len(exp.ElifBranches[0].Statements) != 1 {
+		t.Errorf("exp.ElifBranches[0] is not %d statements. got=%d\n", 1, len(exp.ElifBranches[0].Statements))
+	}
+	if !testIdentifier(t, exp.ElifBranches[0].Statements[0].(*ast.ExpressionStatement).Expression, "y") {
+		return
+	}
+
+	if len(exp.ElifConditions[1]) != 2 {
+		t.Fatalf("exp.ElifConditions[1] is not %d statements. got=%d\n", 2, len(exp.ElifConditions[1]))
+	}
+	if !testInfixExpression(t, exp.ElifConditions[1][1].(*ast.ExpressionStatement).Expression, "z", ">", "y") {
+		return
+	}
+	if len(exp.ElifBranches[1].Statements) != 1 {
+		t.Errorf("exp.ElifBranches[1] is not %d statements. got=%d\n", 1, len(exp.ElifBranches[1].Statements))
+	}
+	if !testIdentifier(t, exp.ElifBranches[1].Statements[0].(*ast.ExpressionStatement).Expression, "z") {
+		return
+	}
+
+	alternative, ok := exp.FalseBranch.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("alternative.Statements[0] is not an ast.ExpressionStatement. got=%T", exp.FalseBranch.Statements[0])
+	}
+	if !testIdentifier(t, alternative.Expression, "w") {
+		return
 	}
 }
 
@@ -758,7 +880,7 @@ func TestIfElseExpression(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmt.Expression is not ast.IfExpression. got=%T", stmt.Expression)
 	}
-	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
+	if !testInfixExpression(t, exp.Condition[0].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
 		return
 	}
 	if len(exp.TrueBranch.Statements) != 1 {
@@ -803,7 +925,7 @@ func TestIfElifElseExpression(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmt.Expression is not ast.IfExpression. got=%T", stmt.Expression)
 	}
-	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
+	if !testInfixExpression(t, exp.Condition[0].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
 		return
 	}
 	if len(exp.TrueBranch.Statements) != 1 {
@@ -818,7 +940,7 @@ func TestIfElifElseExpression(t *testing.T) {
 		return
 	}
 
-	if !testInfixExpression(t, exp.ElifConditions[0], "x", "<", 100) {
+	if !testInfixExpression(t, exp.ElifConditions[0][0].(*ast.ExpressionStatement).Expression, "x", "<", 100) {
 		return
 	}
 	if len(exp.ElifBranches[0].Statements) != 1 {
@@ -832,7 +954,7 @@ func TestIfElifElseExpression(t *testing.T) {
 		return
 	}
 
-	if !testInfixExpression(t, exp.ElifConditions[1], "y", "<", 100) {
+	if !testInfixExpression(t, exp.ElifConditions[1][0].(*ast.ExpressionStatement).Expression, "y", "<", 100) {
 		return
 	}
 	if len(exp.ElifBranches[1].Statements) != 1 {
@@ -876,7 +998,7 @@ func TestIfElifExpression(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmt.Expression is not ast.IfExpression. got=%T", stmt.Expression)
 	}
-	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
+	if !testInfixExpression(t, exp.Condition[0].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
 		return
 	}
 	if len(exp.TrueBranch.Statements) != 1 {
@@ -891,7 +1013,7 @@ func TestIfElifExpression(t *testing.T) {
 		return
 	}
 
-	if !testInfixExpression(t, exp.ElifConditions[0], "x", "<", 100) {
+	if !testInfixExpression(t, exp.ElifConditions[0][0].(*ast.ExpressionStatement).Expression, "x", "<", 100) {
 		return
 	}
 	if len(exp.ElifBranches[0].Statements) != 1 {
@@ -905,7 +1027,7 @@ func TestIfElifExpression(t *testing.T) {
 		return
 	}
 
-	if !testInfixExpression(t, exp.ElifConditions[1], "y", "<", 100) {
+	if !testInfixExpression(t, exp.ElifConditions[1][0].(*ast.ExpressionStatement).Expression, "y", "<", 100) {
 		return
 	}
 	if len(exp.ElifBranches[1].Statements) != 1 {

@@ -384,6 +384,9 @@ func TestIfElifElseExpressions(t *testing.T) {
 
 		{"if (1 > 2) { 10 } else if (1 > 2) { 20 } else if (1 < 2) { 30 }", 30},
 		{"if (1 > 2) { 10 } else if (1 > 2) { 20 } else if (1 > 2) { 30 }", nil},
+
+		{"let x = 0; if x += 1; x == 1 { 30 }", 30},
+		{"let x = 0; if x += 1; x != 1 { 30 } else if x += 1; x != 1 { 20 }", 20},
 	}
 
 	for _, tt := range tests {
@@ -407,8 +410,8 @@ func TestForExpressions(t *testing.T) {
 		{"let x = 0; for x < 10, let x = x + 1 { }; x", 10},
 		{"let x = 0; for x < 10 { let x = x + 1 }", 10},
 		{"for x {}", "identifier not found: x"},
-		{"for (let x = 1, x < 10, x += 1){ break; }; x", 1},
-		{"for (let i = 0; let x = 0, i < 10, i += 1) { x += 1; continue; x += 1 }; x", 10},
+		{"for let x = 1, x < 10, x += 1 { break; }; x", 1},
+		{"for let i = 0; let x = 0, i < 10, i += 1 { x += 1; continue; x += 1 }; x", 10},
 		{"let x = 0; for { x += 1; if x >= 10 { break } }; x", 10},
 	}
 

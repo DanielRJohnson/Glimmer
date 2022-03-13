@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"glimmer/ast"
 	"glimmer/object"
 )
@@ -15,6 +16,7 @@ var (
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
+	fmt.Printf("HIT TYPE %t\n", node)
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node, env)
@@ -146,6 +148,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Boolean:
 		return boolToBoolObj(node.Value)
 	}
+
+	fmt.Printf("HIT UNKNOWN TYPE %T\n", node)
 
 	return nil
 }

@@ -48,10 +48,10 @@ func (ie *InfixExpression) String() string {
 
 type IfExpression struct {
 	Token          token.Token
-	Condition      Expression
+	Condition      []Statement
 	TrueBranch     *BlockStatement
 	ElifBranches   []*BlockStatement
-	ElifConditions []Expression
+	ElifConditions [][]Statement
 	FalseBranch    *BlockStatement
 }
 
@@ -61,13 +61,17 @@ func (ie *IfExpression) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("if (")
-	out.WriteString(ie.Condition.String())
+	for _, condStmt := range ie.Condition {
+		out.WriteString(condStmt.String())
+	}
 	out.WriteString(") ")
 	out.WriteString(ie.TrueBranch.String())
 
 	for index, branch := range ie.ElifBranches {
 		out.WriteString(" else if ")
-		out.WriteString(ie.ElifConditions[index].String())
+		for _, condStmt := range ie.ElifConditions[index] {
+			out.WriteString(condStmt.String())
+		}
 		out.WriteString(branch.String())
 	}
 
