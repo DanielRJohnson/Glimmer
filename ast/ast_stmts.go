@@ -38,7 +38,7 @@ func (as *AssignStatement) TokenLiteral() string { return as.Token.Literal }
 func (as *AssignStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(as.Name.String() + " " + string(as.Type) + " ")
+	out.WriteString(as.Name.String() + " " + as.TokenLiteral() + " ")
 
 	if as.Value != nil {
 		out.WriteString(as.Value.String())

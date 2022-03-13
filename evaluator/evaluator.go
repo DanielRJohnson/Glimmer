@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"fmt"
 	"glimmer/ast"
 	"glimmer/object"
 )
@@ -16,7 +15,6 @@ var (
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
-	fmt.Printf("HIT TYPE %t\n", node)
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node, env)
@@ -28,28 +26,18 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return &object.ReturnValue{Value: val}
 
-	case *ast.LetStatement:
-		val := Eval(node.Value, env)
-		if isError(val) {
-			return val
-		}
-		env.Set(node.Name.Value, val)
-		if fun, ok := val.(*object.Function); ok {
-			fun.Env.Set(node.Name.Value, val) // fn name goes in fn's environment, allows recursion
-		}
-		return val
-
 	case *ast.AssignStatement:
 		prevVal, ok := env.Get(node.Name.Value)
-		if !ok {
-			return newError("identifier not found: %s", node.Name.Value)
-		}
+
 		val := Eval(node.Value, env)
 		if isError(val) {
 			return val
 		}
 
 		if node.Type != "=" {
+			if !ok {
+				return newError("identifier not found: %s", node.Name.Value)
+			}
 			val = evalInfixExpression(string(node.Type[0]), prevVal, val)
 		}
 
@@ -148,8 +136,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Boolean:
 		return boolToBoolObj(node.Value)
 	}
-
-	fmt.Printf("HIT UNKNOWN TYPE %T\n", node)
 
 	return nil
 }

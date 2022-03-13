@@ -1,15 +1,12 @@
 package evaluator
 
 import (
-	"fmt"
 	"glimmer/ast"
 	"glimmer/object"
 	"strings"
 )
 
 func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
-	//condition := Eval(ie.Condition, env)
-	fmt.Println(ie.Condition)
 	condition := evalStatements(ie.Condition, env)
 	if isError(condition) {
 		return condition
@@ -57,7 +54,6 @@ func evalForExpression(fe *ast.ForExpression, env *object.Environment) object.Ob
 // if a condition is true, trueElifBranch returns (the first true branch, true), else (nil, false)
 func trueElifBranch(ie *ast.IfExpression, env *object.Environment) (*ast.BlockStatement, bool) {
 	for index, cond := range ie.ElifConditions {
-		//evaledCond := Eval(cond, env)
 		evaledCond := evalStatements(cond, env)
 		if isTruthy(evaledCond) {
 			return ie.ElifBranches[index], true

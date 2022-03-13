@@ -129,11 +129,11 @@ func TestFunctionApplication(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"let ID = fn(x){x}; ID(5);", 5},
-		{"let ID = fn(x){ return x }; ID(5);", 5},
-		{"let double = fn(x) { x * 2 }; double(5);", 10},
-		{"let add = fn(x, y) { x + y }; add(5, 5);", 10},
-		{"let add = fn(x, y) { x + y }; add(5 + 5, add(5, 5));", 20},
+		{"ID = fn(x){x}; ID(5);", 5},
+		{"ID = fn(x){ return x }; ID(5);", 5},
+		{"double = fn(x) { x * 2 }; double(5);", 10},
+		{"add = fn(x, y) { x + y }; add(5, 5);", 10},
+		{"add = fn(x, y) { x + y }; add(5 + 5, add(5, 5));", 20},
 		{"fn(x) { x }(5)", 5},
 	}
 
@@ -184,11 +184,11 @@ func TestBuiltinFunctions(t *testing.T) {
 
 func TestClosures(t *testing.T) {
 	input := `
-	let newAdder = fn(x) {
+	newAdder = fn(x) {
 		fn(y) { x + y };
 	};
 
-	let addTwo = newAdder(2);
+	addTwo = newAdder(2);
 	addTwo(2);`
 
 	testLiteralObject(t, testEval(input), 4)
@@ -196,9 +196,9 @@ func TestClosures(t *testing.T) {
 
 func TestStaticScoping(t *testing.T) {
 	input := `
-	let n = 5;
-	let addN = fn(x) { x + n };
-	let n = 6;
+	n = 5;
+	addN = fn(x) { x + n };
+	n = 6;
 	addN(5);`
 
 	testLiteralObject(t, testEval(input), 10)
@@ -206,7 +206,7 @@ func TestStaticScoping(t *testing.T) {
 
 func TestRecursion(t *testing.T) {
 	input := `
-	let fib = fn(fibnum) {
+	fib = fn(fibnum) {
 		if fibnum == 0 {
 			0
 		} else if fibnum == 1 {
@@ -385,8 +385,8 @@ func TestIfElifElseExpressions(t *testing.T) {
 		{"if (1 > 2) { 10 } else if (1 > 2) { 20 } else if (1 < 2) { 30 }", 30},
 		{"if (1 > 2) { 10 } else if (1 > 2) { 20 } else if (1 > 2) { 30 }", nil},
 
-		{"let x = 0; if x += 1; x == 1 { 30 }", 30},
-		{"let x = 0; if x += 1; x != 1 { 30 } else if x += 1; x != 1 { 20 }", 20},
+		{"x = 0; if x += 1; x == 1 { 30 }", 30},
+		{"x = 0; if x += 1; x != 1 { 30 } else if x += 1; x != 1 { 20 }", 20},
 	}
 
 	for _, tt := range tests {
@@ -406,13 +406,13 @@ func TestForExpressions(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"for let x = 0, x < 10, let x = x + 1 { }; x", 10},
-		{"let x = 0; for x < 10, let x = x + 1 { }; x", 10},
-		{"let x = 0; for x < 10 { let x = x + 1 }", 10},
+		{"for x = 0, x < 10, x = x + 1 { }; x", 10},
+		{"x = 0; for x < 10, x = x + 1 { }; x", 10},
+		{"x = 0; for x < 10 { x = x + 1 }", 10},
 		{"for x {}", "identifier not found: x"},
-		{"for let x = 1, x < 10, x += 1 { break; }; x", 1},
-		{"for let i = 0; let x = 0, i < 10, i += 1 { x += 1; continue; x += 1 }; x", 10},
-		{"let x = 0; for { x += 1; if x >= 10 { break } }; x", 10},
+		{"for x = 1, x < 10, x += 1 { break; }; x", 1},
+		{"for i = 0; x = 0, i < 10, i += 1 { x += 1; continue; x += 1 }; x", 10},
+		{"x = 0; for { x += 1; if x >= 10 { break } }; x", 10},
 	}
 
 	for _, tt := range tests {
@@ -452,30 +452,14 @@ func TestReturnStatements(t *testing.T) {
 	}
 }
 
-func TestLetStatements(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected int64
-	}{
-		{"let a = 5;", 5},
-		{"let a = 5 * 5; a", 25},
-		{"let a = 5; let b = a; b", 5},
-		{"let a = 5; let b = a; let c = a + b + 5; c;", 15},
-	}
-
-	for _, tt := range tests {
-		testLiteralObject(t, testEval(tt.input), tt.expected)
-	}
-}
-
 func TestAssignExpressions(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected interface{}
 	}{
-		{"let x = 5; x = 6; x", 6},
-		{"let x = 5; x += 6; x", 11},
-		{"x = 5", "identifier not found: x"},
+		{"x = 5; x = 6; x", 6},
+		{"x = 5; x += 6; x", 11},
+		{"x = z", "identifier not found: z"},
 	}
 
 	for _, tt := range tests {
@@ -572,9 +556,9 @@ func TestArrayIndexExpressions(t *testing.T) {
 		expected interface{}
 	}{
 		{"[1,2,3][0]", 1},
-		{"let i = 2; [1,2,3][i]", 3},
+		{"i = 2; [1,2,3][i]", 3},
 		{"[1,2,3][1 + 1]", 3},
-		{"let myArray = [1,2,3]; myArray[1]", 2},
+		{"myArray = [1,2,3]; myArray[1]", 2},
 		{"[1,2,3][3]", "Index 3 out of range for array of length 3"},
 	}
 
@@ -593,7 +577,7 @@ func TestArrayIndexExpressions(t *testing.T) {
 }
 
 func TestDictLiterals(t *testing.T) {
-	input := `let two = "two"; {"one": 1, two: 2 + 2}`
+	input := `two = "two"; {"one": 1, two: 2 + 2}`
 
 	evaluated := testEval(input)
 	result, ok := evaluated.(*object.Dict)
@@ -625,7 +609,7 @@ func TestDictIndexExpressions(t *testing.T) {
 		expected interface{}
 	}{
 		{`{"foo": 5}["foo"]`, 5},
-		{`let key = "foo"; {"foo": 5}[key]`, 5},
+		{`key = "foo"; {"foo": 5}[key]`, 5},
 		{`{"foo": 5}["bar"]`, "key `bar` not found in dict"},
 		{`{"foo": 5}[5]`, "index operator not supported: DICT[INTEGER]"},
 	}

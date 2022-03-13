@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"fmt"
 	"glimmer/ast"
 	"glimmer/object"
 )
@@ -36,8 +35,6 @@ func evalStatements(stmts []ast.Statement, env *object.Environment) object.Objec
 			}
 		}
 	}
-
-	fmt.Printf("result == nil: %t\n", result == nil)
 
 	return result
 }

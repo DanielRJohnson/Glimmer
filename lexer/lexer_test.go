@@ -7,7 +7,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := "+= -= *= /= for break continue : ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. let fn $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; "
+	input := "+= -= *= /= for break continue : ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. fn $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; "
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -41,7 +41,6 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "100"},
 		{token.FLOAT, "123.456"},
 		{token.FLOAT, "123"},
-		{token.LET, "let"},
 		{token.FUNCTION, "fn"},
 		{token.ILLEGAL, "$"},
 		{token.EOF, ""},
