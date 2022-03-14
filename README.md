@@ -131,7 +131,7 @@ aaaa
 >> for {}
 ```
 
-### Other Builtins
+## Other Builtins
  - Builtin functions can be found in `evaluator/builtins.go`
  - Many more are planned in the future, as well as a library structure
  - However, we all know the most important one
