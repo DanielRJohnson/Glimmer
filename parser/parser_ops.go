@@ -38,6 +38,11 @@ func (p *Parser) maxOccuranceError(t token.TokenType, place string, line int, co
 	p.errors = append(p.errors, msg)
 }
 
+func (p *Parser) typeNotRecognizedError(t token.TokenType, line int, col int) {
+	msg := fmt.Sprintf("[%d,%d]: type not recognized: %s", line, col, t)
+	p.errors = append(p.errors, msg)
+}
+
 func (p *Parser) peekError(t token.TokenType, line int, col int) {
 	msg := fmt.Sprintf("[%d,%d]: expected next token to be %s, got %s instead",
 		line, col, t, p.peekToken.Type)

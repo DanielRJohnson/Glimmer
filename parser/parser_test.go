@@ -222,7 +222,7 @@ func TestReturnStatements(t *testing.T) {
  */
 
 func TestFunctionLiteralExpression(t *testing.T) {
-	input := "fn(x, y) { x + y; }"
+	input := "fn(a: int, b: float, c: bool, d: string, e: array[array[int]], f: dict[float], g: fn(int, int, fn() -> float) -> int) -> int { x + y; }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -243,12 +243,33 @@ func TestFunctionLiteralExpression(t *testing.T) {
 		t.Fatalf("stmt.Expression is not ast.FunctionLiteral. got=%T", stmt.Expression)
 	}
 
-	if len(function.Parameters) != 2 {
-		t.Fatalf("function literal parameters wrong. want 2, got=%d\n", len(function.Parameters))
+	if len(function.Parameters) != 7 {
+		t.Fatalf("function literal parameters wrong. want 7, got=%d\n", len(function.Parameters))
 	}
 
-	testLiteralExpression(t, function.Parameters[0], "x")
-	testLiteralExpression(t, function.Parameters[1], "y")
+	testLiteralExpression(t, function.Parameters[0], "a")
+	testLiteralExpression(t, function.Parameters[1], "b")
+	testLiteralExpression(t, function.Parameters[2], "c")
+	testLiteralExpression(t, function.Parameters[3], "d")
+	testLiteralExpression(t, function.Parameters[4], "e")
+	testLiteralExpression(t, function.Parameters[5], "f")
+	testLiteralExpression(t, function.Parameters[6], "g")
+
+	if len(function.ParamTypes) != 7 {
+		t.Fatalf("function literal ParamTypes wrong. want 7, got=%d\n", len(function.ParamTypes))
+	}
+
+	expectedTypes := []string{"int", "float", "bool", "string", "array[array[int]]", "dict[float]", "fn(int, int, fn() -> float) -> int"}
+	for idx, ex := range expectedTypes {
+		actual := function.ParamTypes[idx].String()
+		if ex != actual {
+			t.Fatalf("function param type wrong. want=%s, got=%s", ex, actual)
+		}
+	}
+
+	if function.ReturnType.String() != "int" {
+		t.Fatalf("function return type wrong. want=%s, got=%s", "int", function.ReturnType.String())
+	}
 
 	if len(function.Body.Statements) != 1 {
 		t.Fatalf("function.Body.Statements does not contain %d statements. got=%d\n", 1, len(function.Body.Statements))
@@ -267,9 +288,9 @@ func TestFunctionParameterParsing(t *testing.T) {
 		input    string
 		expected []string
 	}{
-		{input: "fn() {};", expected: []string{}},
-		{input: "fn(x) {};", expected: []string{"x"}},
-		{input: "fn(x, y, z) {};", expected: []string{"x", "y", "z"}},
+		{input: "fn() -> int {};", expected: []string{}},
+		{input: "fn(x: int) -> int {};", expected: []string{"x"}},
+		{input: "fn(x: int, y: int, z: int) -> int {};", expected: []string{"x", "y", "z"}},
 	}
 
 	for _, tt := range tests {

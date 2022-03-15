@@ -4,6 +4,7 @@ import (
 	"glimmer/ast"
 	"glimmer/lexer"
 	"glimmer/token"
+	"glimmer/types"
 )
 
 type Parser struct {
@@ -16,6 +17,14 @@ type Parser struct {
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 }
+
+// type flyweights
+var (
+	INT_T    = &types.IntegerType{}
+	FLOAT_T  = &types.FloatType{}
+	BOOL_T   = &types.BooleanType{}
+	STRING_T = &types.StringType{}
+)
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{lex: l, errors: []string{}}

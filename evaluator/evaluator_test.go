@@ -103,7 +103,7 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 }
 
 func TestFunctionObject(t *testing.T) {
-	input := "fn(x) { x + 2; };"
+	input := "fn(x: int) -> int { x + 2; };"
 
 	evaluated := testEval(input)
 	fn, ok := evaluated.(*object.Function)
@@ -129,12 +129,12 @@ func TestFunctionApplication(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"ID = fn(x){x}; ID(5);", 5},
-		{"ID = fn(x){ return x }; ID(5);", 5},
-		{"double = fn(x) { x * 2 }; double(5);", 10},
-		{"add = fn(x, y) { x + y }; add(5, 5);", 10},
-		{"add = fn(x, y) { x + y }; add(5 + 5, add(5, 5));", 20},
-		{"fn(x) { x }(5)", 5},
+		{"ID = fn(x: int) -> int {x}; ID(5);", 5},
+		{"ID = fn(x: int) -> int { return x }; ID(5);", 5},
+		{"double = fn(x: int) -> int { x * 2 }; double(5);", 10},
+		{"add = fn(x: int, y: int) -> int { x + y }; add(5, 5);", 10},
+		{"add = fn(x: int, y: int) -> int { x + y }; add(5 + 5, add(5, 5));", 20},
+		{"fn(x: int) -> int { x }(5)", 5},
 	}
 
 	for _, tt := range tests {
@@ -184,8 +184,8 @@ func TestBuiltinFunctions(t *testing.T) {
 
 func TestClosures(t *testing.T) {
 	input := `
-	newAdder = fn(x) {
-		fn(y) { x + y };
+	newAdder = fn(x: int) -> int {
+		fn(y: int) -> int { x + y };
 	};
 
 	addTwo = newAdder(2);
@@ -197,7 +197,7 @@ func TestClosures(t *testing.T) {
 func TestStaticScoping(t *testing.T) {
 	input := `
 	n = 5;
-	addN = fn(x) { x + n };
+	addN = fn(x: int) -> int { x + n };
 	n = 6;
 	addN(5);`
 
@@ -206,7 +206,7 @@ func TestStaticScoping(t *testing.T) {
 
 func TestRecursion(t *testing.T) {
 	input := `
-	fib = fn(fibnum) {
+	fib = fn(fibnum: int) -> int {
 		if fibnum == 0 {
 			0
 		} else if fibnum == 1 {
