@@ -15,6 +15,7 @@ const (
 	ARRAY    = "ARRAY"
 	DICT     = "DICT"
 	FUNCTION = "FUNCTION"
+	NONE     = "NONE"
 	ERROR    = "ERROR"
 )
 
@@ -105,6 +106,15 @@ func (ft *FunctionType) String() string {
 	out.WriteString(") -> " + ft.ReturnType.String())
 
 	return out.String()
+}
+
+type NoneType struct{}
+
+func (nt *NoneType) Type() GlimmerType {
+	return NONE
+}
+func (nt *NoneType) String() string {
+	return "none"
 }
 
 type ErrorType struct {

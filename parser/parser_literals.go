@@ -243,6 +243,8 @@ func (p *Parser) parseTypeNode() types.TypeNode {
 		typ.ReturnType = p.parseTypeNode()
 
 		return typ
+	case token.NONE_TYPE:
+		return NONE_T
 	default:
 		p.typeNotRecognizedError(p.curToken.Type, p.curToken.Line, p.curToken.Col)
 		return nil

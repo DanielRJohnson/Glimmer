@@ -75,6 +75,7 @@ const (
 	STRING_TYPE  = "STRING_TYPE"
 	ARRAY_TYPE   = "ARRAY_TYPE"
 	DICT_TYPE    = "DICT_TYPE"
+	NONE_TYPE    = "NONE_TYPE"
 	// fn type is handled by fn
 	//FUNCTION_TYPE = "FUNCTION_TYPE"
 )
@@ -95,6 +96,7 @@ var keywords = map[string]TokenType{
 	"string":   STRING_TYPE,
 	"array":    ARRAY_TYPE,
 	"dict":     DICT_TYPE,
+	"none":     NONE_TYPE,
 	// fn type is handled by fn
 }
 

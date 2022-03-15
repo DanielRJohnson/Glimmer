@@ -222,7 +222,7 @@ func TestReturnStatements(t *testing.T) {
  */
 
 func TestFunctionLiteralExpression(t *testing.T) {
-	input := "fn(a: int, b: float, c: bool, d: string, e: array[array[int]], f: dict[float], g: fn(int, int, fn() -> float) -> int) -> int { x + y; }"
+	input := "fn(a: int, b: float, c: bool, d: string, e: array[array[int]], f: dict[float], g: fn(int, int, fn() -> none) -> int) -> int { x + y; }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -259,7 +259,7 @@ func TestFunctionLiteralExpression(t *testing.T) {
 		t.Fatalf("function literal ParamTypes wrong. want 7, got=%d\n", len(function.ParamTypes))
 	}
 
-	expectedTypes := []string{"int", "float", "bool", "string", "array[array[int]]", "dict[float]", "fn(int, int, fn() -> float) -> int"}
+	expectedTypes := []string{"int", "float", "bool", "string", "array[array[int]]", "dict[float]", "fn(int, int, fn() -> none) -> int"}
 	for idx, ex := range expectedTypes {
 		actual := function.ParamTypes[idx].String()
 		if ex != actual {

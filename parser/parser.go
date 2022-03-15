@@ -24,6 +24,7 @@ var (
 	FLOAT_T  = &types.FloatType{}
 	BOOL_T   = &types.BooleanType{}
 	STRING_T = &types.StringType{}
+	NONE_T   = &types.NoneType{}
 )
 
 func New(l *lexer.Lexer) *Parser {
