@@ -128,7 +128,7 @@ func (et *ErrorType) Type() GlimmerType {
 	return ERROR
 }
 func (et *ErrorType) String() string {
-	return fmt.Sprintf("[%d,%d]: %s", et.Line, et.Col, et.Msg)
+	return fmt.Sprintf("Static TypeError at [%d,%d]: %s", et.Line, et.Col, et.Msg)
 }
 
 func NewEnclosedContext(outer *Context) *Context {
