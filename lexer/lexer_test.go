@@ -7,7 +7,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := "+= -= *= /= for break continue : ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. fn $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; "
+	input := "+= -= *= /= for break continue : ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. fn -> $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; int float bool string array dict none"
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -42,6 +42,7 @@ func TestNextToken(t *testing.T) {
 		{token.FLOAT, "123.456"},
 		{token.FLOAT, "123"},
 		{token.FUNCTION, "fn"},
+		{token.ARROW, "->"},
 		{token.ILLEGAL, "$"},
 		{token.EOF, ""},
 		{token.ASSIGN, "="},
@@ -59,6 +60,13 @@ func TestNextToken(t *testing.T) {
 		{token.INT, "2"},
 		{token.RBRACKET, "]"},
 		{token.SEMICOL, ";"},
+		{token.INTEGER_TYPE, "int"},
+		{token.FLOAT_TYPE, "float"},
+		{token.BOOLEAN_TYPE, "bool"},
+		{token.STRING_TYPE, "string"},
+		{token.ARRAY_TYPE, "array"},
+		{token.DICT_TYPE, "dict"},
+		{token.NONE_TYPE, "none"},
 		{token.EOF, ""},
 	}
 	lex := New(input)

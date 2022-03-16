@@ -25,6 +25,8 @@ func evalNegOperator(right object.Object) object.Object {
 		return &object.Integer{Value: -right.Value}
 	case *object.Float:
 		return &object.Float{Value: -right.Value}
+	case *object.Boolean:
+		return &object.Integer{Value: -(boolToInt(right.Value))}
 	default:
 		return newError("unknown operator: -%s", right.Type())
 	}

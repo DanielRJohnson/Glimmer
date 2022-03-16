@@ -10,6 +10,8 @@ import (
 	"glimmer/object"
 	"glimmer/parser"
 	"glimmer/token"
+	"glimmer/typechecker"
+	"glimmer/types"
 )
 
 const PROMPT = ">> "
@@ -73,6 +75,7 @@ func StartRPPL(in io.Reader, out io.Writer, dot bool) {
 func StartREPL(in io.Reader, out io.Writer, dot bool) {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnvironment()
+	ctx := types.NewContext()
 
 	for {
 		fmt.Fprint(out, PROMPT)
@@ -95,6 +98,12 @@ func StartREPL(in io.Reader, out io.Writer, dot bool) {
 			for _, err := range errors {
 				io.WriteString(out, err+"\n")
 			}
+			continue
+		}
+
+		pType := typechecker.Typeof(program, ctx)
+		if pType.Type() == types.ERROR {
+			io.WriteString(out, pType.String()+"\n")
 			continue
 		}
 

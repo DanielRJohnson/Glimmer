@@ -48,6 +48,7 @@ const (
 	COMMA   = ","
 	COLON   = ":"
 	SEMICOL = ";"
+	ARROW   = "->"
 
 	LPAR     = "("
 	RPAR     = ")"
@@ -63,9 +64,20 @@ const (
 	IF       = "IF"
 	ELSE     = "ELSE"
 	FOR      = "FOR"
-	BREAK    = "break"
-	CONT     = "continue"
+	BREAK    = "BREAK"
+	CONT     = "CONTINUE"
 	RETURN   = "RETURN"
+
+	// Type Keywords
+	INTEGER_TYPE = "INTEGER_TYPE"
+	FLOAT_TYPE   = "FLOAT_TYPE"
+	BOOLEAN_TYPE = "BOOLEAN_TYPE"
+	STRING_TYPE  = "STRING_TYPE"
+	ARRAY_TYPE   = "ARRAY_TYPE"
+	DICT_TYPE    = "DICT_TYPE"
+	NONE_TYPE    = "NONE_TYPE"
+	// fn type is handled by fn
+	//FUNCTION_TYPE = "FUNCTION_TYPE"
 )
 
 var keywords = map[string]TokenType{
@@ -78,6 +90,14 @@ var keywords = map[string]TokenType{
 	"break":    BREAK,
 	"continue": CONT,
 	"return":   RETURN,
+	"int":      INTEGER_TYPE,
+	"float":    FLOAT_TYPE,
+	"bool":     BOOLEAN_TYPE,
+	"string":   STRING_TYPE,
+	"array":    ARRAY_TYPE,
+	"dict":     DICT_TYPE,
+	"none":     NONE_TYPE,
+	// fn type is handled by fn
 }
 
 func LookupIdent(ident string) TokenType {

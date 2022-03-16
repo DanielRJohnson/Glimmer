@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"glimmer/ast"
 	"glimmer/token"
+	"glimmer/types"
 	"strconv"
 )
 
@@ -14,7 +15,15 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 		return nil
 	}
 
-	lit.Parameters = p.parseFunctionParameters()
+	lit.Parameters, lit.ParamTypes = p.parseFunctionParameters()
+
+	if !p.expectPeek(token.ARROW) {
+		return nil
+	}
+
+	p.nextToken()
+
+	lit.ReturnType = p.parseTypeNode()
 
 	if !p.expectPeek(token.LBRACE) {
 		return nil
@@ -23,6 +32,46 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 	lit.Body = p.parseBlockStatement()
 
 	return lit
+}
+
+func (p *Parser) parseFunctionParameters() ([]*ast.Identifier, []types.TypeNode) {
+	ids := []*ast.Identifier{}
+	parTypes := []types.TypeNode{}
+
+	if p.peekTokenIs(token.RPAR) {
+		p.nextToken()
+		return ids, parTypes
+	}
+	p.nextToken()
+
+	ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	ids = append(ids, ident)
+
+	// p.nextToken() // curtok = ':'
+	if !p.expectPeek(token.COLON) {
+		return nil, nil
+	}
+	p.nextToken() // curtok = type
+	parTypes = append(parTypes, p.parseTypeNode())
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken() // curtok = comma
+		p.nextToken() // curtok = id
+		ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		ids = append(ids, ident)
+
+		if !p.expectPeek(token.COLON) {
+			return nil, nil
+		}
+
+		p.nextToken() // curtok = type
+
+		parTypes = append(parTypes, p.parseTypeNode())
+	}
+	if !p.expectPeek(token.RPAR) {
+		return nil, nil
+	}
+	return ids, parTypes
 }
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
@@ -58,30 +107,6 @@ func (p *Parser) parseDictLiteral() ast.Expression {
 	}
 
 	return dict
-}
-
-func (p *Parser) parseFunctionParameters() []*ast.Identifier {
-	ids := []*ast.Identifier{}
-
-	if p.peekTokenIs(token.RPAR) {
-		p.nextToken()
-		return ids
-	}
-	p.nextToken()
-
-	ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-	ids = append(ids, ident)
-
-	for p.peekTokenIs(token.COMMA) {
-		p.nextToken()
-		p.nextToken()
-		ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
-		ids = append(ids, ident)
-	}
-	if !p.expectPeek(token.RPAR) {
-		return nil
-	}
-	return ids
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
@@ -122,4 +147,106 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 
 func (p *Parser) parseBoolean() ast.Expression {
 	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
+}
+
+func (p *Parser) parseTypeNode() types.TypeNode {
+	switch p.curToken.Type {
+	case token.INTEGER_TYPE:
+		return INT_T
+	case token.FLOAT_TYPE:
+		return FLOAT_T
+	case token.BOOLEAN_TYPE:
+		return BOOL_T
+	case token.STRING_TYPE:
+		return STRING_T
+	case token.ARRAY_TYPE:
+		typ := &types.ArrayType{}
+
+		if !p.expectPeek(token.LBRACKET) {
+			return nil
+		}
+		p.nextToken() // curtok = type
+
+		innerType := p.parseTypeNode()
+		if innerType == nil {
+			return nil
+		}
+
+		typ.HeldType = innerType
+
+		if !p.expectPeek(token.RBRACKET) {
+			return nil
+		}
+
+		return typ
+	case token.DICT_TYPE:
+		typ := &types.DictType{}
+
+		if !p.expectPeek(token.LBRACKET) {
+			return nil
+		}
+		p.nextToken() // curtok = type
+
+		innerType := p.parseTypeNode()
+		if innerType == nil {
+			return nil
+		}
+
+		typ.HeldType = innerType
+
+		if !p.expectPeek(token.RBRACKET) {
+			return nil
+		}
+
+		return typ
+	case token.FUNCTION:
+		typ := &types.FunctionType{}
+
+		if !p.expectPeek(token.LPAR) {
+			return nil
+		}
+
+		if p.peekTokenIs(token.RPAR) { // no params case
+			p.nextToken() // curtok = )
+			if !p.expectPeek(token.ARROW) {
+				return nil
+			}
+			p.nextToken()
+			typ.ReturnType = p.parseTypeNode()
+			return typ
+		}
+
+		p.nextToken() // curtok = type
+
+		typ.ParamTypes = append(typ.ParamTypes, p.parseTypeNode()) // first type
+		if p.peekTokenIs(token.COMMA) {
+			p.nextToken() // curtok = ','
+		}
+		for p.curTokenIs(token.COMMA) { // any more amount of types
+			p.nextToken()
+			typ.ParamTypes = append(typ.ParamTypes, p.parseTypeNode())
+			if !p.peekTokenIs(token.RPAR) {
+				p.nextToken()
+			}
+		}
+
+		if !p.expectPeek(token.RPAR) {
+			return nil
+		}
+
+		if !p.expectPeek(token.ARROW) {
+			return nil
+		}
+
+		p.nextToken() // curtok = ret type
+
+		typ.ReturnType = p.parseTypeNode()
+
+		return typ
+	case token.NONE_TYPE:
+		return NONE_T
+	default:
+		p.typeNotRecognizedError(p.curToken.Type, p.curToken.Line, p.curToken.Col)
+		return nil
+	}
 }

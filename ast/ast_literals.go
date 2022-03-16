@@ -3,12 +3,15 @@ package ast
 import (
 	"bytes"
 	"glimmer/token"
+	"glimmer/types"
 	"strings"
 )
 
 type FunctionLiteral struct {
 	Token      token.Token
 	Parameters []*Identifier
+	ParamTypes []types.TypeNode
+	ReturnType types.TypeNode
 	Body       *BlockStatement
 }
 
@@ -18,12 +21,13 @@ func (fl *FunctionLiteral) String() string {
 	var out bytes.Buffer
 
 	params := []string{}
-	for _, p := range fl.Parameters {
-		params = append(params, p.String())
+	for idx, p := range fl.Parameters {
+		params = append(params, p.String()+" : "+fl.ParamTypes[idx].String())
 	}
 
 	out.WriteString(fl.TokenLiteral())
 	out.WriteString("(" + strings.Join(params, ", ") + ")")
+	out.WriteString(" -> " + fl.ReturnType.String() + " ")
 	out.WriteString(fl.Body.String())
 
 	return out.String()
