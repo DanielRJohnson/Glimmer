@@ -1,5 +1,5 @@
 # Welcome to Glimmer ✨
-Glimmer is a dynamically-typed scripting language made by me, Daniel Johnson, which aims to have clean and simple syntax while drawing some inspiration from each of my favorite languages and topics.
+Glimmer is a fully statically-typed scripting language which aims to have clean and simple syntax while drawing some inspiration from each of my favorite languages and topics.
 
 This implementation of Glimmer comes with a complete Read-Eval-Print-Loop (REPL), Read-Parse-Print-Loop (RPPL), and Read-Lex-Print-Loop (RLPL). Of course, you can also execute source files directly.
 
@@ -85,11 +85,11 @@ aaaa
  - Note: Glimmer is whitespace-agnostic so while the examples shown are on one line, you may have any indentation/newlines you want in a file.
 
 ```
->> inc = fn(x) { x + 1 }
->> applyTwice = fn(f, x) { f(f(x)) }
+>> inc = fn(x: int) -> int { x + 1 }
+>> applyTwice = fn(f: fn(int) -> int, x: int) -> int { f(f(x)) }
 >> applyTwice(inc, 1)
 3
->> fact = fn(n) { if n == 0 { 1 } else { fact(n - 1) * n } }
+>> fact = fn(n: int) -> int { if n == 0 { 1 } else { fact(n - 1) * n } }
 >> fact(5)
 120
 ```
@@ -139,6 +139,19 @@ aaaa
 ```
 >> print("Hello, World!")
 Hello, World!
+```
+
+## Full Static Typing!!!
+ - Static typing means that the language makes some concessions to determine the type of every object in the program before the program even runs. This leads to many less weird runtime errors, less crashes = good. These concessions include:
+     - manually fixing fn arguments and return type
+     - containers must hold only one type
+     - all branches of an `if` expression must match types
+
+```
+>> 1 + "string"
+Static TypeError at [1,3]: infix operator for 'int + string' not found
+>> push([ fn(x: int) -> int { x }, fn(x: int) -> int { x } ], "not fn")
+Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held type: fn(int) -> int, got=string
 ```
 
 # Usage
