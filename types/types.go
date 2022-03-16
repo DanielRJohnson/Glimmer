@@ -85,6 +85,7 @@ func (dt *DictType) String() string {
 type FunctionType struct {
 	ParamTypes []TypeNode
 	ReturnType TypeNode
+	FnCtx      *Context
 }
 
 func (ft *FunctionType) Type() GlimmerType {
@@ -118,14 +119,56 @@ func (nt *NoneType) String() string {
 }
 
 type ErrorType struct {
-	msg  string
-	line int
-	col  int
+	Msg  string
+	Line int
+	Col  int
 }
 
 func (et *ErrorType) Type() GlimmerType {
 	return ERROR
 }
 func (et *ErrorType) String() string {
-	return fmt.Sprintf("[%d,%d]: %s", et.line, et.col, et.msg)
+	return fmt.Sprintf("[%d,%d]: %s", et.Line, et.Col, et.Msg)
+}
+
+func NewEnclosedContext(outer *Context) *Context {
+	ctx := NewContext()
+	ctx.outer = outer
+	return ctx
+}
+
+func NewContext() *Context {
+	s := make(map[string]TypeNode)
+	return &Context{store: s, outer: nil}
+}
+
+type Context struct {
+	store map[string]TypeNode
+	outer *Context
+}
+
+func (c *Context) Get(name string) (TypeNode, bool) {
+	typ, ok := c.store[name]
+	if !ok && c.outer != nil {
+		typ, ok = c.outer.Get(name)
+	}
+	return typ, ok
+}
+
+func (c *Context) Set(name string, val TypeNode) TypeNode {
+	c.store[name] = val
+	return val
+}
+
+func (c *Context) DeepCopy() *Context {
+	newEnv := &Context{}
+	if c.outer != nil {
+		newEnv.outer = c.outer.DeepCopy()
+	}
+	newStore := make(map[string]TypeNode)
+	for key, val := range c.store {
+		newStore[key] = val
+	}
+	newEnv.store = newStore
+	return newEnv
 }

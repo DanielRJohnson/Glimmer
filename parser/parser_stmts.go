@@ -12,8 +12,6 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.ID:
 		if isAssign(p.peekToken.Type) {
 			return p.parseAssignStatement()
-			// } else if p.peekToken.Type == token.COLON {
-			// 	return p.parseDefineStatement()
 		} else {
 			return p.parseExpressionStatement()
 		}

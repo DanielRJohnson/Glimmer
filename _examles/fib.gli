@@ -1,6 +1,6 @@
-let n = 20
+n = 20
 
-let fib = fn(fibnum) {
+fib = fn(fibnum: int) -> int {
     if fibnum == 0 {
         0
     } else if fibnum == 1 {

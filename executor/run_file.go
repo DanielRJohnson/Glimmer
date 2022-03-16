@@ -6,6 +6,8 @@ import (
 	"glimmer/lexer"
 	"glimmer/object"
 	"glimmer/parser"
+	"glimmer/typechecker"
+	"glimmer/types"
 	"io/ioutil"
 )
 
@@ -19,16 +21,24 @@ func RunFile(fpath string, dot bool) (object.Object, []error) {
 
 	l := lexer.New(contentString)
 	p := parser.New(l)
+	ctx := types.NewContext()
 
 	program := p.ParseProgram()
 	errors := p.Errors()
+	var errObjs []error
 	if len(p.Errors()) != 0 {
-		var errObjs []error
 		for _, err := range errors {
 			errObjs = append(errObjs, fmt.Errorf(err))
 		}
 		return nil, errObjs
 	}
+
+	pType := typechecker.Typeof(program, ctx)
+	if pType.Type() == types.ERROR {
+		errObjs = append(errObjs, fmt.Errorf(pType.String()))
+		return nil, errObjs
+	}
+
 	if dot {
 		program.ToDot()
 	}
