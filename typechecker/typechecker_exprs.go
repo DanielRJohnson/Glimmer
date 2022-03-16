@@ -24,10 +24,12 @@ func typeofIfExpression(node *ast.IfExpression, ctx *types.Context) types.TypeNo
 			return elifType
 		}
 	}
-	falseType := Typeof(node.FalseBranch, ctx)
-	branchTypes = append(branchTypes, falseType)
-	if falseType.Type() == types.ERROR {
-		return falseType
+	if node.FalseBranch != nil {
+		falseType := Typeof(node.FalseBranch, ctx)
+		branchTypes = append(branchTypes, falseType)
+		if falseType.Type() == types.ERROR {
+			return falseType
+		}
 	}
 
 	for _, typ := range branchTypes {
@@ -37,6 +39,28 @@ func typeofIfExpression(node *ast.IfExpression, ctx *types.Context) types.TypeNo
 	}
 
 	return trueType
+}
+
+func typeofForExpression(node *ast.ForExpression, ctx *types.Context) types.TypeNode {
+	for _, stmt := range node.ForPrecondition {
+		stmtType := Typeof(stmt, ctx)
+		if stmtType.Type() == types.ERROR {
+			return stmtType
+		}
+	}
+	for _, stmt := range node.ForCondition {
+		stmtType := Typeof(stmt, ctx)
+		if stmtType.Type() == types.ERROR {
+			return stmtType
+		}
+	}
+	for _, stmt := range node.ForPostcondition {
+		stmtType := Typeof(stmt, ctx)
+		if stmtType.Type() == types.ERROR {
+			return stmtType
+		}
+	}
+	return Typeof(node.Body, ctx)
 }
 
 func typeofIndexExpression(node *ast.IndexExpression, ctx *types.Context) types.TypeNode {

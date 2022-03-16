@@ -44,7 +44,7 @@ func Typeof(node ast.Node, ctx *types.Context) types.TypeNode {
 		return typeofIfExpression(node, ctx)
 
 	case *ast.ForExpression:
-		return Typeof(node.Body, ctx)
+		return typeofForExpression(node, ctx)
 
 	case *ast.BreakStatement:
 		return NONE_T

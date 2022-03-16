@@ -5,6 +5,8 @@ import (
 	"glimmer/lexer"
 	"glimmer/object"
 	"glimmer/parser"
+	"glimmer/typechecker"
+	"glimmer/types"
 	"testing"
 )
 
@@ -13,6 +15,12 @@ func testEval(input string) object.Object {
 	p := parser.New(l)
 	program := p.ParseProgram()
 	env := object.NewEnvironment()
+	ctx := types.NewContext()
+	typechecker.Typeof(program, ctx)
+	// programType := typechecker.Typeof(program, ctx)
+	// if programType.Type() == types.ERROR {
+	// 	return &object.Error{Message: programType.(*types.ErrorType).Msg}
+	// }
 
 	return Eval(program, env)
 }
@@ -184,7 +192,7 @@ func TestBuiltinFunctions(t *testing.T) {
 
 func TestClosures(t *testing.T) {
 	input := `
-	newAdder = fn(x: int) -> int {
+	newAdder = fn(x: int) -> fn(int) -> int {
 		fn(y: int) -> int { x + y };
 	};
 
