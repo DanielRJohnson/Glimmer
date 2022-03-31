@@ -169,6 +169,9 @@ Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held ty
 
 # TODO
 Near:
+* for-in instead of current convoluted for? (would also need while)
+* if statement (null) vs if expression (typed) for ease of use?
+* async-finish blocks?
 * OS interaction (exec, input, etc)
 * Imports & standard library/ more builtins
 * More dict functionality
