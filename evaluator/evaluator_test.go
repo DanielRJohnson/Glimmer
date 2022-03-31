@@ -215,9 +215,9 @@ func TestStaticScoping(t *testing.T) {
 func TestRecursion(t *testing.T) {
 	input := `
 	fib = fn(fibnum: int) -> int {
-		if fibnum == 0 {
+		ife fibnum == 0 {
 			0
-		} else if fibnum == 1 {
+		} else ife fibnum == 1 {
 			1
 		} else {
 			return fib(fibnum - 1) + fib(fibnum - 2)
@@ -374,27 +374,27 @@ func TestIfElifElseExpressions(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"if (true) { 10 }", 10},
-		{"if (false) { 10 }", nil},
-		{"if (1) { 10 }", 10},
-		{"if (0) { 10 }", nil},
-		{"if (1 < 2) { 10 }", 10},
-		{"if (1 > 2) { 10 }", nil},
-		{"if (1 > 2) { 10 } else { 20 }", 20},
-		{"if (1 < 2) { 10 } else { 20 }", 10},
+		{"ife (true) { 10 }", 10},
+		{"ife (false) { 10 }", nil},
+		{"ife (1) { 10 }", 10},
+		{"ife (0) { 10 }", nil},
+		{"ife (1 < 2) { 10 }", 10},
+		{"ife (1 > 2) { 10 }", nil},
+		{"ife (1 > 2) { 10 } else { 20 }", 20},
+		{"ife (1 < 2) { 10 } else { 20 }", 10},
 
-		{"if (1 < 2) { 10 } else if (1 < 2) { 20 } else { 30 }", 10},
-		{"if (1 > 2) { 10 } else if (1 < 2) { 20 } else { 30 }", 20},
-		{"if (1 > 2) { 10 } else if (1 > 2) { 20 } else { 30 }", 30},
+		{"ife (1 < 2) { 10 } else ife (1 < 2) { 20 } else { 30 }", 10},
+		{"ife (1 > 2) { 10 } else ife (1 < 2) { 20 } else { 30 }", 20},
+		{"ife (1 > 2) { 10 } else ife (1 > 2) { 20 } else { 30 }", 30},
 
-		{"if (1 > 2) { 10 } else if (1 < 2) { 20 }", 20},
-		{"if (1 > 2) { 10 } else if (1 > 2) { 20 }", nil},
+		{"ife (1 > 2) { 10 } else ife (1 < 2) { 20 }", 20},
+		{"ife (1 > 2) { 10 } else ife (1 > 2) { 20 }", nil},
 
-		{"if (1 > 2) { 10 } else if (1 > 2) { 20 } else if (1 < 2) { 30 }", 30},
-		{"if (1 > 2) { 10 } else if (1 > 2) { 20 } else if (1 > 2) { 30 }", nil},
+		{"ife (1 > 2) { 10 } else ife (1 > 2) { 20 } else ife (1 < 2) { 30 }", 30},
+		{"ife (1 > 2) { 10 } else ife (1 > 2) { 20 } else ife (1 > 2) { 30 }", nil},
 
-		{"x = 0; if x += 1; x == 1 { 30 }", 30},
-		{"x = 0; if x += 1; x != 1 { 30 } else if x += 1; x != 1 { 20 }", 20},
+		{"x = 0; ife x += 1; x == 1 { 30 }", 30},
+		{"x = 0; ife x += 1; x != 1 { 30 } else ife x += 1; x != 1 { 20 }", 20},
 	}
 
 	for _, tt := range tests {
@@ -420,7 +420,7 @@ func TestForExpressions(t *testing.T) {
 		{"for x {}", "identifier not found: x"},
 		{"for x = 1, x < 10, x += 1 { break; }; x", 1},
 		{"for i = 0; x = 0, i < 10, i += 1 { x += 1; continue; x += 1 }; x", 10},
-		{"x = 0; for { x += 1; if x >= 10 { break } }; x", 10},
+		{"x = 0; for { x += 1; ife x >= 10 { break } }; x", 10},
 	}
 
 	for _, tt := range tests {
@@ -451,7 +451,7 @@ func TestReturnStatements(t *testing.T) {
 		{"return 10; 9;", 10},
 		{"return 2 * 5; 9;", 10},
 		{"9; return 2 * 5;", 10},
-		{"if 1 { if 1 { return 10 } return 1; }", 10},
+		{"ife 1 { ife 1 { return 10 } return 1; }", 10},
 	}
 
 	for _, tt := range tests {

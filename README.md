@@ -95,19 +95,19 @@ aaaa
 ```
 
 ## If Expressions
- - If's are expressions in Glimmer that evaluate to the last statement of which branch gets evaluated
- - The condition of an if is also multi-statement and evaluates to the last statement
- - Any amount of "else if" branches are allowed that are also have multi-statement conditions
- - Funcions are the only scope extenders, so the blocks of an if operate in the same environment as its parent
+ - Ife's are expressions in Glimmer that evaluate to the last statement of which branch gets evaluated
+ - The condition of an ife is also multi-statement and evaluates to the last statement
+ - Any amount of "else ife" branches are allowed that are also have multi-statement conditions
+ - Funcions are the only scope extenders, so the blocks of an ife operate in the same environment as its parent
 
 ```
->> if (true) { 1 } else { 0 }
+>> ife (true) { 1 } else { 0 }
 1
->> if x = 5; x > 4 { 1 } else { 0 }
+>> ife x = 5; x > 4 { 1 } else { 0 }
 1
->> if (false) { 1 } else if (true) { 0 } else { 1 }
+>> ife (false) { 1 } else ife (true) { 0 } else { 1 }
 0
->> if x = 5; x <= 4 { 1 } else if x -= 1; x <= 4 { 0 } else { 1 }
+>> ife x = 5; x <= 4 { 1 } else ife x -= 1; x <= 4 { 0 } else { 1 }
 0
 ```
 
@@ -145,7 +145,7 @@ Hello, World!
  - Static typing means that the language makes some concessions to determine the type of every object in the program before the program even runs. This leads to many less weird runtime errors, less crashes = good. These concessions include:
      - manually fixing fn arguments and return type
      - containers must hold only one type
-     - all branches of an `if` expression must match types
+     - all branches of an `ife` expression must match types
 
 ```
 >> 1 + "string"
@@ -164,13 +164,13 @@ Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held ty
 # Changelog
 * V0.0: Base Language Push
 * V0.1: Added "For" construct as well as assignment and arithmetic assignment (i.e. +=)
-* V0.2: Added line and col numbers for parser errors, multi-line if's, and deprecated let in favor of defining and updating assignment 
+* V0.2: Added line and col numbers for parser errors, multi-line ife's, and deprecated let in favor of defining and updating assignment 
 * V0.3: Added static typing, changing function syntax `fn() -> none { print("WOOHOO") }()`
 
 # TODO
 Near:
 * for-in instead of current convoluted for? (would also need while)
-* if statement (null) vs if expression (typed) for ease of use?
+* if statement (no type)
 * async-finish blocks?
 * OS interaction (exec, input, etc)
 * Imports & standard library/ more builtins

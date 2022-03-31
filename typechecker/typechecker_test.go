@@ -29,10 +29,10 @@ func TestTypeofErrors(t *testing.T) {
 		{"[1, 2, 3, 4.2]", "Static TypeError at [1,1]: array must have matching types"},
 		{`{"a": 1, "b": fn(x: int) -> int { x }}`, "Static TypeError at [1,1]: dict must have matching value types"},
 		{"fn(x: none, y: int) -> none { }", "Static TypeError at [1,3]: param can not be none type"},
-		{"if true { 1 } else { 2.2 }", "Static TypeError at [1,3]: if branches must match types"},
+		{"ife true { 1 } else { 2.2 }", "Static TypeError at [1,4]: ife branches must match types"},
 		{"arr = [1,2,3,4]; arr[3.2];", "Static TypeError at [1,21]: index of array must be int"},
 		{`dic = {"a": 1}; dic[3.2];`, "Static TypeError at [1,20]: index of dict must be string"},
-		{"fn(a: int, b: int) -> int { if true { false } else { false } }", "Static TypeError at [1,3]: function body type does not match return type"},
+		{"fn(a: int, b: int) -> int { ife true { false } else { false } }", "Static TypeError at [1,3]: function body type does not match return type"},
 		{"fn() -> int { 1 }(true)", "Static TypeError at [1,18]: invalid number of arguments in call"},
 		{"fn(x: int) -> int { x } (false)", "Static TypeError at [1,25]: param type mismatch for param 1 in call"},
 		{"-[1,2,3,4]", "Static TypeError at [1,1]: input to prefix op '-' must be numeric"},
@@ -174,7 +174,7 @@ func TestTypeofDictLiteral(t *testing.T) {
 }
 
 func TestTypeofIfExpression(t *testing.T) {
-	input := `if true { 1 } else if true { 1 } else if true { 1 } else { 1 }`
+	input := `ife true { 1 } else ife true { 1 } else ife true { 1 } else { 1 }`
 	expected := "int"
 
 	l := lexer.New(input)

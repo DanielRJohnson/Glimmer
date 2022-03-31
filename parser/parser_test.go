@@ -442,7 +442,7 @@ func TestIdentifierExpression(t *testing.T) {
 }
 
 func TestStringLiteralExpression(t *testing.T) {
-	input := `"hello world`
+	input := `"hello world"`
 
 	l := lexer.New(input)
 	p := New(l)
@@ -684,7 +684,7 @@ func testInfixExpression(t *testing.T, exp ast.Expression, left interface{}, ope
  */
 
 func TestIfExpression(t *testing.T) {
-	input := "if x < y { x }"
+	input := "ife x < y { x }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -725,7 +725,7 @@ func TestIfExpression(t *testing.T) {
 }
 
 func TestMultiIfExpression(t *testing.T) {
-	input := "if x = 5; (x < y) { x }"
+	input := "ife x = 5; (x < y) { x }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -771,7 +771,7 @@ func TestMultiIfExpression(t *testing.T) {
 }
 
 func TestMultiIfElifExpression(t *testing.T) {
-	input := "if x = 5; (x < y) { x } else if y = 5; y > x { y } else if z = 5; z > y { z } else { w }"
+	input := "ife x = 5; (x < y) { x } else ife y = 5; y > x { y } else ife z = 5; z > y { z } else { w }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -847,7 +847,7 @@ func TestMultiIfElifExpression(t *testing.T) {
 }
 
 func TestIfElseExpression(t *testing.T) {
-	input := "if (x < y) { x } else { y }"
+	input := "ife (x < y) { x } else { y }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -892,7 +892,7 @@ func TestIfElseExpression(t *testing.T) {
 }
 
 func TestIfElifElseExpression(t *testing.T) {
-	input := "if (x < y) { x } else if (x < 100) { x } else if y < 100 { y } else { y }"
+	input := "ife (x < y) { x } else ife (x < 100) { x } else ife y < 100 { y } else { y }"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -965,7 +965,7 @@ func TestIfElifElseExpression(t *testing.T) {
 }
 
 func TestIfElifExpression(t *testing.T) {
-	input := "if (x < y) { x } else if (x < 100) { x } else if y < 100 { y }"
+	input := "ife (x < y) { x } else ife (x < 100) { x } else ife y < 100 { y }"
 
 	l := lexer.New(input)
 	p := New(l)

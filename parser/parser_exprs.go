@@ -68,7 +68,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: p.curToken}
 
 	for !p.peekTokenIs(token.LBRACE) {
-		p.nextToken() // cur = IF , peek = first of cond
+		p.nextToken() // cur = IFE , peek = first of cond
 		expression.Condition = append(expression.Condition, p.parseStatement())
 	}
 
@@ -83,7 +83,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	for p.peekTokenIs(token.ELSE) {
 		p.nextToken()
 
-		if p.peekTokenIs(token.IF) { // elif
+		if p.peekTokenIs(token.IFE) { // elif
 			p.nextToken() //curToken = If
 
 			condStmts := []ast.Statement{}

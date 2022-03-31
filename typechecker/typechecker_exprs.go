@@ -34,7 +34,7 @@ func typeofIfExpression(node *ast.IfExpression, ctx *types.Context) types.TypeNo
 
 	for _, typ := range branchTypes {
 		if typ.String() != branchTypes[0].String() {
-			return &types.ErrorType{Msg: "if branches must match types", Line: node.Token.Line, Col: node.Token.Col}
+			return &types.ErrorType{Msg: "ife branches must match types", Line: node.Token.Line, Col: node.Token.Col}
 		}
 	}
 

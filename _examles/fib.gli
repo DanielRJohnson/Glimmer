@@ -1,9 +1,9 @@
 n = 20
 
 fib = fn(fibnum: int) -> int {
-    if fibnum == 0 {
+    ife fibnum == 0 {
         0
-    } else if fibnum == 1 {
+    } else ife fibnum == 1 {
         1
     } else {
         fib(fibnum - 1) + fib(fibnum - 2)
