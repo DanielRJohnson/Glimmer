@@ -111,6 +111,14 @@ aaaa
 0
 ```
 
+## If Statements
+ - Like if expressions, but without the burden of returning a value with strict typing
+```
+>> if true { print("hi") } else { return 1 }
+hi
+null
+```
+
 ## For Expressions
  - For loops are the only looping construct in Glimmer, but they are super-charged
  - You may have between 0 and 3 *COMMA SEPARATED* sections in a For Expression
