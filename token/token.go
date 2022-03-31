@@ -100,9 +100,25 @@ var keywords = map[string]TokenType{
 	// fn type is handled by fn
 }
 
+var types = map[TokenType]bool{
+	INTEGER_TYPE: true,
+	FLOAT_TYPE:   true,
+	BOOLEAN_TYPE: true,
+	STRING_TYPE:  true,
+	ARRAY_TYPE:   true,
+	DICT_TYPE:    true,
+	NONE_TYPE:    true,
+	FUNCTION:     true,
+}
+
 func LookupIdent(ident string) TokenType {
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
 	return ID
+}
+
+func TokenIsType(tok Token) bool {
+	_, ok := types[tok.Type]
+	return ok
 }

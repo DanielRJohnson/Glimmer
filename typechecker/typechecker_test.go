@@ -37,7 +37,7 @@ func TestTypeofErrors(t *testing.T) {
 		{"fn(x: int) -> int { x } (false)", "Static TypeError at [1,25]: param type mismatch for param 1 in call"},
 		{"-[1,2,3,4]", "Static TypeError at [1,1]: input to prefix op '-' must be numeric"},
 		{"![1,2,3,4]", "Static TypeError at [1,1]: input to prefix op '!' must be numeric"},
-		{"[] + []", "Static TypeError at [1,4]: infix operator for 'array[none] + array[none]' not found"},
+		{"[]int + []int", "Static TypeError at [1,7]: infix operator for 'array[int] + array[int]' not found"},
 		{"len(1, 2)", "Static TypeError at [1,4]: Incorrect num of arguments to len, got=2"},
 		{"len(1)", "Static TypeError at [1,4]: Argument to len must be array or string, got=int"},
 		{"head(1, 2)", "Static TypeError at [1,5]: Incorrect num of arguments to head, got=2"},

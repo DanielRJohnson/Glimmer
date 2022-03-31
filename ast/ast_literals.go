@@ -34,8 +34,9 @@ func (fl *FunctionLiteral) String() string {
 }
 
 type ArrayLiteral struct {
-	Token    token.Token
-	Elements []Expression
+	Token        token.Token
+	Elements     []Expression
+	ExplicitType types.TypeNode
 }
 
 func (al *ArrayLiteral) expressionNode()      {}

@@ -43,7 +43,7 @@ func typeofArrayLiteral(node *ast.ArrayLiteral, ctx *types.Context) types.TypeNo
 	arr := &types.ArrayType{}
 
 	if len(node.Elements) == 0 {
-		arr.HeldType = NONE_T
+		arr.HeldType = node.ExplicitType // i.e. []int
 		return arr
 	}
 

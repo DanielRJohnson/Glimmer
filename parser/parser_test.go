@@ -335,6 +335,29 @@ func TestArrayLiteralParsing(t *testing.T) {
 	testInfixExpression(t, array.Elements[2], 3, "+", 3)
 }
 
+func TestArrayLiteralExplicitTypeParsing(t *testing.T) {
+	input := "[]fn(int)->int"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	CheckParserErrors(t, p)
+
+	stmt, _ := program.Statements[0].(*ast.ExpressionStatement)
+	array, ok := stmt.Expression.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Expression)
+	}
+
+	if len(array.Elements) != 0 {
+		t.Fatalf("len(array.Elements) not 0. got=%d", len(array.Elements))
+	}
+
+	if array.ExplicitType.String() != "fn(int) -> int" {
+		t.Fatalf("array.ExplicitType not fn(int) -> int, got=%s", array.ExplicitType.String())
+	}
+}
+
 func TestDictLiteralParsing(t *testing.T) {
 	input := `{"one": 1, "two": 2, "three": 3}`
 

@@ -76,6 +76,13 @@ func (p *Parser) parseFunctionParameters() ([]*ast.Identifier, []types.TypeNode)
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
 	array := &ast.ArrayLiteral{Token: p.curToken}
+	if p.peekTokenIs(token.RBRACKET) {
+		p.nextToken()
+		p.nextToken()
+		array.ExplicitType = p.parseTypeNode()
+		array.Elements = []ast.Expression{}
+		return array
+	}
 	array.Elements = p.parseExpressionList(token.RBRACKET)
 	return array
 }
