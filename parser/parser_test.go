@@ -1034,6 +1034,47 @@ func TestIfElifExpression(t *testing.T) {
 }
 
 /*
+* IF STATEMENT TESTS
+ */
+
+func TestIfStatement(t *testing.T) {
+	input := "if x < y { x }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	CheckParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.IfStatement)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.IfStatement. got=%T", program.Statements[0])
+	}
+
+	if !testInfixExpression(t, stmt.Condition[0].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
+		return
+	}
+	if len(stmt.TrueBranch.Statements) != 1 {
+		t.Errorf("consequence is not %d statements. got=%d\n", 1, len(stmt.TrueBranch.Statements))
+	}
+
+	consequence, ok := stmt.TrueBranch.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("consequence.Statements[0] is not an ast.ExpressionStatement. got=%T", stmt.TrueBranch.Statements[0])
+	}
+	if !testIdentifier(t, consequence.Expression, "x") {
+		return
+	}
+
+	if stmt.FalseBranch != nil {
+		t.Errorf("exp.Alternative was not nil. got=%+v", stmt.FalseBranch)
+	}
+}
+
+/*
 * FOR EXPRESSION TESTS
  */
 

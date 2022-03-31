@@ -15,6 +15,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		} else {
 			return p.parseExpressionStatement()
 		}
+	case token.IF:
+		return p.parseIfStatement()
 	case token.BREAK:
 		br := &ast.BreakStatement{Token: p.curToken}
 		if p.peekTokenIs(token.SEMICOL) {
@@ -58,6 +60,48 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	if p.peekTokenIs(token.SEMICOL) {
 		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseIfStatement() *ast.IfStatement {
+	stmt := &ast.IfStatement{Token: p.curToken}
+
+	for !p.peekTokenIs(token.LBRACE) {
+		p.nextToken() // cur = IF , peek = first of cond
+		stmt.Condition = append(stmt.Condition, p.parseStatement())
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	stmt.TrueBranch = p.parseBlockStatement()
+
+	// for peek token else, parse either elif or else
+	hasEncounteredElse := false
+	for p.peekTokenIs(token.ELSE) {
+		p.nextToken()
+
+		if p.peekTokenIs(token.IF) { // elif
+			p.nextToken() //curToken = If
+
+			condStmts := []ast.Statement{}
+			for !p.peekTokenIs(token.LBRACE) {
+				p.nextToken() //curToken = first token of condition statement
+				condStmts = append(condStmts, p.parseStatement())
+			}
+			p.nextToken()
+			stmt.ElifConditions = append(stmt.ElifConditions, condStmts)
+			stmt.ElifBranches = append(stmt.ElifBranches, p.parseBlockStatement())
+		} else { // else
+			if !p.expectPeek(token.LBRACE) || hasEncounteredElse {
+				return nil
+			}
+			stmt.FalseBranch = p.parseBlockStatement()
+			hasEncounteredElse = true
+		}
 	}
 
 	return stmt

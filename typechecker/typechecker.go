@@ -32,7 +32,13 @@ func Typeof(node ast.Node, ctx *types.Context) types.TypeNode {
 		}
 
 		ctx.Set(node.Name.Value, valType)
+		if valType.Type() == types.ERROR {
+			return valType
+		}
 		return NONE_T
+
+	case *ast.IfStatement:
+		return typeofIfStatement(node, ctx)
 
 	case *ast.ExpressionStatement:
 		return Typeof(node.Expression, ctx)

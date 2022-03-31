@@ -5,6 +5,31 @@ import (
 	"glimmer/object"
 )
 
+func evalIfStatement(is *ast.IfStatement, env *object.Environment) object.Object {
+	condition := evalStatements(is.Condition, env)
+	if isError(condition) {
+		return condition
+	}
+
+	if isTruthy(condition) {
+		tr := Eval(is.TrueBranch, env)
+		if isError(tr) || tr.Type() == object.RETURN_VALUE_OBJ {
+			return tr
+		}
+	} else if branch, ok := trueElifBranch_Stmt(is, env); ok {
+		elif := Eval(branch, env)
+		if isError(elif) || elif.Type() == object.RETURN_VALUE_OBJ {
+			return elif
+		}
+	} else if is.FalseBranch != nil {
+		els := Eval(is.FalseBranch, env)
+		if isError(els) || els.Type() == object.RETURN_VALUE_OBJ {
+			return els
+		}
+	}
+	return NULL
+}
+
 func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object
 

@@ -409,6 +409,13 @@ func TestIfElifElseExpressions(t *testing.T) {
 	}
 }
 
+func TestIfStatement(t *testing.T) {
+	input := `if 1 < 2 { true } else if 1 > 2 { "string" } else { fn(x: int) -> int { x } (5) }`
+	testLiteralObject(t, testEval(input), nil)
+	input = `fn(x: int) -> int { if 1 < 2 { return x + 1 } } (5)`
+	testLiteralObject(t, testEval(input), 6)
+}
+
 func TestForExpressions(t *testing.T) {
 	tests := []struct {
 		input    string

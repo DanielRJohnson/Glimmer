@@ -58,6 +58,43 @@ func (rs *ReturnStatement) String() string {
 	return out.String()
 }
 
+type IfStatement struct {
+	Token          token.Token
+	Condition      []Statement
+	TrueBranch     *BlockStatement
+	ElifBranches   []*BlockStatement
+	ElifConditions [][]Statement
+	FalseBranch    *BlockStatement
+}
+
+func (is *IfStatement) statementNode()       {}
+func (is *IfStatement) TokenLiteral() string { return is.Token.Literal }
+func (is *IfStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if (")
+	for _, condStmt := range is.Condition {
+		out.WriteString(condStmt.String())
+	}
+	out.WriteString(") ")
+	out.WriteString(is.TrueBranch.String())
+
+	for index, branch := range is.ElifBranches {
+		out.WriteString(" else if ")
+		for _, condStmt := range is.ElifConditions[index] {
+			out.WriteString(condStmt.String())
+		}
+		out.WriteString(branch.String())
+	}
+
+	if is.FalseBranch != nil {
+		out.WriteString(" else ")
+		out.WriteString(is.FalseBranch.String())
+	}
+
+	return out.String()
+}
+
 type ExpressionStatement struct {
 	Token      token.Token
 	Expression Expression

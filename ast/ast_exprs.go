@@ -60,7 +60,7 @@ func (ie *IfExpression) TokenLiteral() string { return ie.Token.Literal }
 func (ie *IfExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("if (")
+	out.WriteString("ife (")
 	for _, condStmt := range ie.Condition {
 		out.WriteString(condStmt.String())
 	}
@@ -68,7 +68,7 @@ func (ie *IfExpression) String() string {
 	out.WriteString(ie.TrueBranch.String())
 
 	for index, branch := range ie.ElifBranches {
-		out.WriteString(" else if ")
+		out.WriteString(" else ife ")
 		for _, condStmt := range ie.ElifConditions[index] {
 			out.WriteString(condStmt.String())
 		}

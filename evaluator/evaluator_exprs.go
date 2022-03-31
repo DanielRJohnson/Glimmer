@@ -62,6 +62,16 @@ func trueElifBranch(ie *ast.IfExpression, env *object.Environment) (*ast.BlockSt
 	return nil, false
 }
 
+func trueElifBranch_Stmt(ie *ast.IfStatement, env *object.Environment) (*ast.BlockStatement, bool) {
+	for index, cond := range ie.ElifConditions {
+		evaledCond := evalStatements(cond, env)
+		if isTruthy(evaledCond) {
+			return ie.ElifBranches[index], true
+		}
+	}
+	return nil, false
+}
+
 func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:

@@ -5,6 +5,31 @@ import (
 	"glimmer/types"
 )
 
+func typeofIfStatement(node *ast.IfStatement, ctx *types.Context) types.TypeNode {
+	// get types of all branches
+	// error if they contain error
+	// return none
+
+	trueType := Typeof(node.TrueBranch, ctx)
+	if trueType.Type() == types.ERROR {
+		return trueType
+	}
+	for _, branch := range node.ElifBranches {
+		elifType := Typeof(branch, ctx)
+		if elifType.Type() == types.ERROR {
+			return elifType
+		}
+	}
+	if node.FalseBranch != nil {
+		falseType := Typeof(node.FalseBranch, ctx)
+		if falseType.Type() == types.ERROR {
+			return falseType
+		}
+	}
+
+	return NONE_T
+}
+
 func typeofBlockStatement(node *ast.BlockStatement, ctx *types.Context) types.TypeNode {
 	// get type of last statement and all returns
 	// error if they dont match, return matched

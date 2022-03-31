@@ -26,10 +26,12 @@ func TestTypeofErrors(t *testing.T) {
 		expectedMsg string
 	}{
 		{"x", "Static TypeError at [1,2]: identifier not found: x"},
+		{"x = 2 + []bool", "Static TypeError at [1,7]: infix operator for 'int + array[bool]' not found"},
 		{"[1, 2, 3, 4.2]", "Static TypeError at [1,1]: array must have matching types"},
 		{`{"a": 1, "b": fn(x: int) -> int { x }}`, "Static TypeError at [1,1]: dict must have matching value types"},
 		{"fn(x: none, y: int) -> none { }", "Static TypeError at [1,3]: param can not be none type"},
 		{"ife true { 1 } else { 2.2 }", "Static TypeError at [1,4]: ife branches must match types"},
+		{"if true { x = 2 + fn(x: int) -> int { x + 1} }", "Static TypeError at [1,17]: infix operator for 'int + fn(int) -> int' not found"},
 		{"arr = [1,2,3,4]; arr[3.2];", "Static TypeError at [1,21]: index of array must be int"},
 		{`dic = {"a": 1}; dic[3.2];`, "Static TypeError at [1,20]: index of dict must be string"},
 		{"fn(a: int, b: int) -> int { ife true { false } else { false } }", "Static TypeError at [1,3]: function body type does not match return type"},
@@ -187,6 +189,27 @@ func TestTypeofIfExpression(t *testing.T) {
 
 	if pType.Type() != types.INTEGER {
 		t.Fatalf("pType is not types.IntegerType, got=%s", pType.Type())
+	}
+
+	if pType.String() != expected {
+		t.Fatalf("type string does not match. want=%s, got=%s", expected, pType.String())
+	}
+}
+
+func TestTypeofIfStatement(t *testing.T) {
+	input := `if true { 1 } else if true { x = "string" } else if true { fn(x: int) -> int { x + 1 } } else { []int }`
+	expected := "none"
+
+	l := lexer.New(input)
+	p := parser.New(l)
+	program := p.ParseProgram()
+	CheckParserErrors(t, p)
+	ctx := types.NewContext()
+
+	pType := Typeof(program, ctx)
+
+	if pType.Type() != types.NONE {
+		t.Fatalf("pType is not types.NONE, got=%s", pType.Type())
 	}
 
 	if pType.String() != expected {
