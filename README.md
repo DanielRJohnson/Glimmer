@@ -192,15 +192,16 @@ Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held ty
 
 # Changelog
 * V0.0: Base Language Push
-* V0.1: Added "For" construct as well as assignment and arithmetic assignment (i.e. +=)
-* V0.2: Added line and col numbers for parser errors, multi-line ife's, and deprecated let in favor of defining and updating assignment 
+* V0.1: Added `for` construct as well as assignment and arithmetic assignment (i.e. +=)
+* V0.2: Added line and col numbers for parser errors, multi-line `ife`'s, and deprecated let in favor of defining and updating assignment 
 * V0.3: Added static typing, changing function syntax `fn() -> none { print("WOOHOO") }()`
+* V0.4: Resigned `for`, and added `if` (non-valued if statements), `while`, and `range` 
 
 # TODO
 Near:
-* something `in` collection == boolean
 * async-finish blocks?
 * OS interaction (exec, input, etc)
+* `in` as an infix operator
 * Imports & standard library/ more builtins
 * More dict functionality
 
