@@ -34,7 +34,7 @@ func TestTypeofErrors(t *testing.T) {
 		{"if true { x = 2 + fn(x: int) -> int { x + 1} }", "Static TypeError at [1,17]: infix operator for 'int + fn(int) -> int' not found"},
 		{"arr = [1,2,3,4]; arr[3.2];", "Static TypeError at [1,21]: index of array must be int"},
 		{`dic = {"a": 1}; dic[3.2];`, "Static TypeError at [1,20]: index of dict must be string"},
-		{"fn(a: int, b: int) -> int { ife true { false } else { false } }", "Static TypeError at [1,3]: function body type does not match return type"},
+		{"fn(a: int, b: int) -> int { ife true { false } else { false } }", "Static TypeError at [1,38]: return type mismatching function type"},
 		{"fn() -> int { 1 }(true)", "Static TypeError at [1,18]: invalid number of arguments in call"},
 		{"fn(x: int) -> int { x } (false)", "Static TypeError at [1,25]: param type mismatch for param 1 in call"},
 		{"-[1,2,3,4]", "Static TypeError at [1,1]: input to prefix op '-' must be numeric"},
@@ -46,6 +46,8 @@ func TestTypeofErrors(t *testing.T) {
 		{"head(1)", "Static TypeError at [1,5]: Argument to head must be array, got=int"},
 		{"tail(1, 2)", "Static TypeError at [1,5]: Incorrect num of arguments to tail, got=2"},
 		{"tail(1)", "Static TypeError at [1,5]: Argument to tail must be array, got=int"},
+		{"range(1, 2, 3, 4)", "Static TypeError at [1,6]: Incorrect num of arguments to range, got=4"},
+		{"range(3.3)", "Static TypeError at [1,6]: Argument 1 to range must be int, got=float"},
 		{"x = [1,2,3,4,5]; slice(x)", "Static TypeError at [1,23]: Incorrect num of arguments to slice, got=1"},
 		{"x = [1,2,3,4,5]; slice(1, 2, 3)", "Static TypeError at [1,23]: Argument 1 to slice must be array, got=int"},
 		{"x = [1,2,3,4,5]; slice(x, true, 3)", "Static TypeError at [1,23]: Argument 2 to slice must be int, got=bool"},
@@ -55,6 +57,8 @@ func TestTypeofErrors(t *testing.T) {
 		{"push([1,2,3], true)", "Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held type: int, got=bool"},
 		{"pop(1, 2)", "Static TypeError at [1,4]: Incorrect num of arguments to pop, got=2"},
 		{"pop(1)", "Static TypeError at [1,4]: Argument 1 to pop must be array, got=int"},
+		{"a = fn() -> int { return 3.3; 1 } ()", "Static TypeError at [1,17]: return type mismatching function type"},
+		{"a = fn() -> int { return 1; 3.3 } ()", "Static TypeError at [1,17]: return type mismatching function type"},
 	}
 
 	for _, tt := range tests {
@@ -87,10 +91,40 @@ func TestTypeofBasicStatements(t *testing.T) {
 		{"true", "BOOLEAN", "bool"},
 		{`"hello"`, "STRING", "string"},
 		{"x = 5; x", "INTEGER", "int"},
-		{"for { break }", "NONE", "none"},
-		{"for { continue }", "NONE", "none"},
+		{"for i in [1,2,3,4,5] { break }", "NONE", "none"},
 		{"x = 5", "NONE", "none"},
 		{"return 5;", "INTEGER", "int"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := parser.New(l)
+		program := p.ParseProgram()
+		CheckParserErrors(t, p)
+		ctx := types.NewContext()
+
+		pType := Typeof(program, ctx)
+
+		if pType.Type() != tt.expectedType {
+			t.Errorf("pType is not %s, got=%s", tt.expectedString, pType.Type())
+		}
+
+		if pType.String() != tt.expectedString {
+			t.Errorf("type string does not match. want=%s, got=%s", tt.expectedString, pType.String())
+		}
+	}
+}
+
+func TestTypeofForStatements(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedType   types.GlimmerType
+		expectedString string
+	}{
+		{"for i, val in [1,2,3,4] { 1 }", "NONE", "none"},
+		{"arr = [1,2,3,4]; for val in arr { 1 }", "NONE", "none"},
+		{`for key, val in {"a": 1, "b": 2} { 1 }`, "NONE", "none"},
+		{`dct = {"a": 1, "b": 2}; for key in dct { 1 }`, "NONE", "none"},
 	}
 
 	for _, tt := range tests {
@@ -355,6 +389,7 @@ func TestTypeofBuiltin(t *testing.T) {
 		{"x = [1,2,3,4,5]; slice(x, 2, 3)", "ARRAY", "array[int]"},
 		{"push([1,2,3,4], 5)", "ARRAY", "array[int]"},
 		{"pop([ [1,2], [3,4] ])", "ARRAY", "array[int]"},
+		{"range(5)", "ARRAY", "array[int]"},
 	}
 
 	for _, tt := range tests {

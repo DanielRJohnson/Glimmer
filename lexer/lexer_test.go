@@ -7,12 +7,14 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := "if ife += -= *= /= for break continue : ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. fn -> $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; int float bool string array dict none"
+	input := "for in if ife += -= *= /= for break continue : ==!==!abc+-,; # this is a line comment \n \t\r ()/*><{}100 123.456 123. fn -> $ \x00 = && & || <= >= | \"foobar\" \"foo\t\t\tbar\" [1, 2]; int float bool string array dict none"
 
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
+		{token.FOR, "for"},
+		{token.IN, "in"},
 		{token.IF, "if"},
 		{token.IFE, "ife"},
 		{token.PLUSEQ, "+="},

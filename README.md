@@ -116,27 +116,29 @@ aaaa
 ```
 >> if true { print("hi") } else { return 1 }
 hi
-null
+null # statements return null
 ```
 
-## For Expressions
- - For loops are the only looping construct in Glimmer, but they are super-charged
- - You may have between 0 and 3 *COMMA SEPARATED* sections in a For Expression
-    - 0: An infinite loop broken by `break` like `while (true) {}` in C
-    - 1: A loop with a condition, like `while (cond) {}` in C
-    - 2: A loop with a condition and a postcondition like `for ( ; cond; post) {}` in C
-    - 3: A loop with a precondition, a condition, and a postcondition like `for (pre; cond; post) {}` in C
- - The kicker is that all of these sections can be multiple statements, the condition evaluating to its last statement
- - For is also an expression, so it evaluates to the last statement of the last loop executed
-
+## For Loops
+ - Loop over collections with ease using a for-in structure
+ - arrays give you value with one loop variable, index then value with two
+ - dicts give you key with one loop variable, key then value with two
 
 ```
-# All of these are valid loops
->> for i = 0, i < 10, i += 1 {}
->> for i = 0; j = 0, i < 10 && j < 10, i += 1; j += 1 {}
->> i = 0; for i < 10, i += 1 {}
->> for (i < 10) {}
->> for {}
+>> for v in range(5) { print(v * v) }
+0
+1
+4
+9
+16
+null # loops are statements, thus return null
+
+>> for i, v in range(4) { print("i: ", i, " v^2: ", v*v) }
+i: 0 v^2: 0
+i: 1 v^2: 1
+i: 2 v^2: 4
+i: 3 v^2: 9
+null # loops are statements, thus return null
 ```
 
 ## Other Builtins
@@ -177,8 +179,7 @@ Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held ty
 
 # TODO
 Near:
-* for-in instead of current convoluted for? (would also need while)
-* if statement (no type)
+* While
 * async-finish blocks?
 * OS interaction (exec, input, etc)
 * Imports & standard library/ more builtins

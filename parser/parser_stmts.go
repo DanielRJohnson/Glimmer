@@ -17,6 +17,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		}
 	case token.IF:
 		return p.parseIfStatement()
+	case token.FOR:
+		return p.parseForStatement()
 	case token.BREAK:
 		br := &ast.BreakStatement{Token: p.curToken}
 		if p.peekTokenIs(token.SEMICOL) {
@@ -103,6 +105,37 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 			hasEncounteredElse = true
 		}
 	}
+
+	return stmt
+}
+
+func (p *Parser) parseForStatement() *ast.ForStatement {
+	stmt := &ast.ForStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.ID) {
+		return nil
+	} // curtok = loopvar
+
+	firstLVar := p.parseIdentifier().(*ast.Identifier)
+	stmt.LoopVars = append(stmt.LoopVars, firstLVar)
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		if !p.expectPeek(token.ID) {
+			return nil
+		} //curtok = loopvar
+		lv := p.parseIdentifier().(*ast.Identifier)
+		stmt.LoopVars = append(stmt.LoopVars, lv)
+	}
+
+	if !p.expectPeek(token.IN) {
+		return nil
+	}
+	p.nextToken() // curtok = collection
+	stmt.Collection = p.parseExpression(LOWEST)
+
+	p.nextToken() // curtok = body
+	stmt.Body = p.parseBlockStatement()
 
 	return stmt
 }

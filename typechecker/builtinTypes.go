@@ -92,8 +92,31 @@ func typeofBuiltin(node *ast.CallExpression, ctx *types.Context) types.TypeNode 
 				Line: node.Token.Line, Col: node.Token.Col}
 		}
 		return arrType.(*types.ArrayType).HeldType
+	case "range":
+		if len(node.Arguments) < 1 || len(node.Arguments) > 3 {
+			return &types.ErrorType{Msg: fmt.Sprintf("Incorrect num of arguments to range, got=%d", len(node.Arguments)),
+				Line: node.Token.Line, Col: node.Token.Col}
+		}
+
+		if t1 := Typeof(node.Arguments[0], ctx); t1.Type() != types.INTEGER {
+			return &types.ErrorType{Msg: fmt.Sprintf("Argument 1 to range must be int, got=%s", t1.String()),
+				Line: node.Token.Line, Col: node.Token.Col}
+		}
+		if len(node.Arguments) > 1 {
+			if t2 := Typeof(node.Arguments[1], ctx); t2.Type() != types.INTEGER {
+				return &types.ErrorType{Msg: fmt.Sprintf("Argument 2 to range must be int, got=%s", t2.String()),
+					Line: node.Token.Line, Col: node.Token.Col}
+			}
+		}
+		if len(node.Arguments) > 2 {
+			if t3 := Typeof(node.Arguments[2], ctx); t3.Type() != types.INTEGER {
+				return &types.ErrorType{Msg: fmt.Sprintf("Argument 3 to range must be int, got=%s", t3.String()),
+					Line: node.Token.Line, Col: node.Token.Col}
+			}
+		}
+		return &types.ArrayType{HeldType: INT_T}
 	}
-	return nil
+	panic("Builtin not recognized, this should never happen")
 }
 
 // map acting as set
@@ -105,4 +128,5 @@ var builtinExists = map[string]bool{
 	"slice": true,
 	"push":  true,
 	"pop":   true,
+	"range": true,
 }

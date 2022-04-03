@@ -3,6 +3,7 @@ package ast
 import (
 	"bytes"
 	"glimmer/token"
+	"strings"
 )
 
 type LetStatement struct {
@@ -91,6 +92,29 @@ func (is *IfStatement) String() string {
 		out.WriteString(" else ")
 		out.WriteString(is.FalseBranch.String())
 	}
+
+	return out.String()
+}
+
+type ForStatement struct {
+	Token      token.Token
+	LoopVars   []*Identifier
+	Collection Expression
+	Body       *BlockStatement
+}
+
+func (fs *ForStatement) statementNode()       {}
+func (fs *ForStatement) TokenLiteral() string { return fs.Token.Literal }
+func (fs *ForStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(fs.TokenLiteral() + " ")
+	lvStrings := []string{}
+	for _, lv := range fs.LoopVars {
+		lvStrings = append(lvStrings, lv.Value)
+	}
+	out.WriteString(strings.Join(lvStrings, ", ") + " in ")
+	out.WriteString(fs.Collection.String() + fs.Body.String())
 
 	return out.String()
 }

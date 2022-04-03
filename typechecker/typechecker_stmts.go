@@ -30,6 +30,42 @@ func typeofIfStatement(node *ast.IfStatement, ctx *types.Context) types.TypeNode
 	return NONE_T
 }
 
+func typeofForStatement(node *ast.ForStatement, ctx *types.Context) types.TypeNode {
+	// loopvar is guarenteed to be ID through parser
+	// collection must be arr or dict
+	// eval body statements and error if they error
+	collType := Typeof(node.Collection, ctx)
+	if collType.Type() != types.ARRAY && collType.Type() != types.DICT {
+		return &types.ErrorType{Msg: "For statements must iterate over a collection",
+			Line: node.Token.Line, Col: node.Token.Col}
+	}
+
+	if len(node.LoopVars) > 2 {
+		return &types.ErrorType{Msg: "For statements must have at most 2 loop variables",
+			Line: node.Token.Line, Col: node.Token.Col}
+	}
+
+	if collType.Type() == types.ARRAY {
+		if len(node.LoopVars) == 1 {
+			ctx.Set(node.LoopVars[0].Value, collType.(*types.ArrayType).HeldType)
+		} else { // 2
+			ctx.Set(node.LoopVars[0].Value, INT_T)
+			ctx.Set(node.LoopVars[1].Value, collType.(*types.ArrayType).HeldType)
+		}
+	} else if collType.Type() == types.DICT {
+		ctx.Set(node.LoopVars[0].Value, STRING_T)
+		if len(node.LoopVars) > 1 { // len==2
+			ctx.Set(node.LoopVars[1].Value, collType.(*types.DictType).HeldType)
+		}
+	}
+
+	if bt := Typeof(node.Body, ctx); bt.Type() == types.ERROR {
+		return bt
+	}
+
+	return NONE_T
+}
+
 func typeofBlockStatement(node *ast.BlockStatement, ctx *types.Context) types.TypeNode {
 	// get type of last statement and all returns
 	// error if they dont match, return matched
@@ -38,14 +74,18 @@ func typeofBlockStatement(node *ast.BlockStatement, ctx *types.Context) types.Ty
 	}
 
 	retTypes := []types.TypeNode{}
-	for _, stmt := range node.Statements {
+	for i, stmt := range node.Statements {
 		stmtType := Typeof(stmt, ctx)
 
 		if stmtType.Type() == types.ERROR {
 			return stmtType
 		}
 
-		if _, ok := stmt.(*ast.ReturnStatement); ok {
+		if _, ok := stmt.(*ast.ReturnStatement); ok || (i == len(node.Statements)-1) {
+			if ctx.FnType != nil && (stmtType.Type() != (*ctx.FnType).Type()) {
+				return &types.ErrorType{Msg: "return type mismatching function type",
+					Line: node.Token.Line, Col: node.Token.Col}
+			}
 			retTypes = append(retTypes, stmtType)
 		}
 	}

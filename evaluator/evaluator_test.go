@@ -169,6 +169,9 @@ func TestBuiltinFunctions(t *testing.T) {
 		{"slice([1,2,3,4], 6, 3)", fmt.Sprintf("invalid slice index %d > %d", 6, 3)},
 		{"slice([1,2,3,4], -1, 5)", fmt.Sprintf("start index %d out of range for array of length %d", -1, 4)},
 		{"slice([1,2,3,4], 1, 5)", fmt.Sprintf("end index %d out of range for array of length %d", 5, 4)},
+		{"range(5)[4]", 4},
+		{"range(1, 5)[3]", 4},
+		{"range(1, 5, 2)[1]", 3},
 	}
 
 	for _, tt := range tests {
@@ -416,36 +419,20 @@ func TestIfStatement(t *testing.T) {
 	testLiteralObject(t, testEval(input), 6)
 }
 
-func TestForExpressions(t *testing.T) {
+func TestForStatements(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected interface{}
+		expected int
 	}{
-		{"for x = 0, x < 10, x = x + 1 { }; x", 10},
-		{"x = 0; for x < 10, x = x + 1 { }; x", 10},
-		{"x = 0; for x < 10 { x = x + 1 }", 10},
-		{"for x {}", "identifier not found: x"},
-		{"for x = 1, x < 10, x += 1 { break; }; x", 1},
-		{"for i = 0; x = 0, i < 10, i += 1 { x += 1; continue; x += 1 }; x", 10},
-		{"x = 0; for { x += 1; ife x >= 10 { break } }; x", 10},
+		{"x = 0; for _ in [1,2,3,4,5] { x += 1 }; x", 5},
+		{"x = 0; for i, val in [1,2,3,4,5] { x += i; x += val }; x", 25},
+		{`dct = {"a": 1, "b": 2}; x = 0; for key in dct { x += dct[key] }; x`, 3},
+		{`dct = {"a": 1, "b": 2}; x = 0; for _, val in dct { x += val }; x`, 3},
 	}
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-
-		switch expected := tt.expected.(type) {
-		case int:
-			testIntegerObject(t, evaluated, int64(expected))
-		case string:
-			errObj, ok := evaluated.(*object.Error)
-			if !ok {
-				t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
-				continue
-			}
-			if errObj.Message != expected {
-				t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
-			}
-		}
+		testIntegerObject(t, evaluated, int64(tt.expected))
 	}
 }
 

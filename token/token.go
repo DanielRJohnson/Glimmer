@@ -65,6 +65,7 @@ const (
 	IFE      = "IFE"
 	ELSE     = "ELSE"
 	FOR      = "FOR"
+	IN       = "IN"
 	BREAK    = "BREAK"
 	CONT     = "CONTINUE"
 	RETURN   = "RETURN"
@@ -89,6 +90,7 @@ var keywords = map[string]TokenType{
 	"ife":      IFE,
 	"else":     ELSE,
 	"for":      FOR,
+	"in":       IN,
 	"break":    BREAK,
 	"continue": CONT,
 	"return":   RETURN,

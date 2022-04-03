@@ -8,8 +8,9 @@ import (
 var builtins = map[string]*object.Builtin{
 	"print": {Fn: func(args ...object.Object) object.Object {
 		for _, arg := range args {
-			fmt.Println(arg.Inspect())
+			fmt.Print(arg.Inspect())
 		}
+		fmt.Print("\n")
 		return NULL
 	}},
 	"len": {Fn: func(args ...object.Object) object.Object {
@@ -96,7 +97,18 @@ var builtins = map[string]*object.Builtin{
 		length := len(arr.Elements)
 		return &object.Array{Elements: arr.Elements[0 : length-1]}
 	}},
-	// TODO: MAP, FILTER, REDUCE
+	"range": {Fn: func(args ...object.Object) object.Object {
+		switch len(args) {
+		case 1:
+			return singleArgRange(args...) // (top-exclusive)
+		case 2:
+			return doubleArgRange(args...) // (bottom-inclusive, top-exclusive)
+		case 3:
+			return tripleArgRange(args...) // (bottom-inclusive, top-exclusive, step)
+		default:
+			return newError("wrong number of arguments to range. got=%d, want=[1-3]", len(args))
+		}
+	}},
 }
 
 func enforceNumArgs(numArgs int, args ...object.Object) *object.Error {
@@ -113,4 +125,46 @@ func enforceArgType(fnName string, args []object.Object, types ...object.ObjectT
 		}
 	}
 	return nil
+}
+
+// (top-exclusive)
+func singleArgRange(args ...object.Object) object.Object {
+	if typeErr := enforceArgType("range", args, object.INTEGER_OBJ); typeErr != nil {
+		return typeErr
+	}
+	top := args[0].(*object.Integer)
+	rng := &object.Array{}
+	for i := 0; i < int(top.Value); i += 1 {
+		rng.Elements = append(rng.Elements, &object.Integer{Value: int64(i)})
+	}
+	return rng
+}
+
+// (bottom-inclusive, top-exclusive)
+func doubleArgRange(args ...object.Object) object.Object {
+	if typeErr := enforceArgType("range", args, object.INTEGER_OBJ, object.INTEGER_OBJ); typeErr != nil {
+		return typeErr
+	}
+	bot := args[0].(*object.Integer)
+	top := args[1].(*object.Integer)
+	rng := &object.Array{}
+	for i := int(bot.Value); i < int(top.Value); i += 1 {
+		rng.Elements = append(rng.Elements, &object.Integer{Value: int64(i)})
+	}
+	return rng
+}
+
+// (bottom-inclusive, top-exclusive, step)
+func tripleArgRange(args ...object.Object) object.Object {
+	if typeErr := enforceArgType("range", args, object.INTEGER_OBJ, object.INTEGER_OBJ, object.INTEGER_OBJ); typeErr != nil {
+		return typeErr
+	}
+	bot := args[0].(*object.Integer)
+	top := args[1].(*object.Integer)
+	step := args[2].(*object.Integer)
+	rng := &object.Array{}
+	for i := int(bot.Value); i < int(top.Value); i += int(step.Value) {
+		rng.Elements = append(rng.Elements, &object.Integer{Value: int64(i)})
+	}
+	return rng
 }

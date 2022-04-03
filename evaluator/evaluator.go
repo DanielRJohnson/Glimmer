@@ -50,6 +50,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IfStatement:
 		return evalIfStatement(node, env)
 
+	case *ast.ForStatement:
+		return evalForStatement(node, env)
+
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 
@@ -58,9 +61,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
-
-	case *ast.ForExpression:
-		return evalForExpression(node, env)
 
 	case *ast.BreakStatement:
 		return BREAK

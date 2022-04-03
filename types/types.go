@@ -131,9 +131,10 @@ func (et *ErrorType) String() string {
 	return fmt.Sprintf("Static TypeError at [%d,%d]: %s", et.Line, et.Col, et.Msg)
 }
 
-func NewEnclosedContext(outer *Context) *Context {
+func NewEnclosedContext(outer *Context, retType *TypeNode) *Context {
 	ctx := NewContext()
 	ctx.outer = outer
+	ctx.FnType = retType
 	return ctx
 }
 
@@ -143,8 +144,9 @@ func NewContext() *Context {
 }
 
 type Context struct {
-	store map[string]TypeNode
-	outer *Context
+	store  map[string]TypeNode
+	outer  *Context
+	FnType *TypeNode
 }
 
 func (c *Context) Get(name string) (TypeNode, bool) {

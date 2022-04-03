@@ -83,40 +83,6 @@ func (ie *IfExpression) String() string {
 	return out.String()
 }
 
-type ForExpression struct {
-	Token            token.Token
-	ForPrecondition  []Statement
-	ForCondition     []Statement
-	ForPostcondition []Statement
-	Body             *BlockStatement
-}
-
-func (fe *ForExpression) expressionNode()      {}
-func (fe *ForExpression) TokenLiteral() string { return fe.Token.Literal }
-func (fe *ForExpression) String() string {
-	var out bytes.Buffer
-
-	out.WriteString(fe.TokenLiteral() + " ")
-	for _, preStmt := range fe.ForPrecondition {
-		out.WriteString(preStmt.String() + " ")
-	}
-	if len(fe.ForPrecondition) != 0 {
-		out.WriteString(", ")
-	}
-	for _, condStmt := range fe.ForCondition {
-		out.WriteString(condStmt.String() + " ")
-	}
-	if len(fe.ForCondition) != 0 {
-		out.WriteString(", ")
-	}
-	for _, postStmt := range fe.ForPostcondition {
-		out.WriteString(postStmt.String() + " ")
-	}
-	out.WriteString(" " + fe.Body.String())
-
-	return out.String()
-}
-
 type CallExpression struct {
 	Token     token.Token
 	Function  Expression

@@ -106,61 +106,6 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	return expression
 }
 
-// for {} -- infinite
-// for true {} -- condition
-// for i < 2, i = i + 1 -- condition and postcondition
-// for let i = 2, i < 5, i = i + 1 -- precondition, condition, postcondition
-
-func (p *Parser) parseForExpression() ast.Expression {
-	fe := &ast.ForExpression{Token: p.curToken}
-
-	if p.peekTokenIs(token.LBRACE) { // infinite loop
-		p.nextToken()
-		fe.Body = p.parseBlockStatement()
-		return fe
-	}
-
-	section1 := []ast.Statement{}
-	section2 := []ast.Statement{}
-	section3 := []ast.Statement{}
-	commaCounter := 0
-
-	for !p.peekTokenIs(token.LBRACE) {
-		p.nextToken()
-		switch commaCounter {
-		case 0:
-			section1 = append(section1, p.parseStatement())
-		case 1:
-			section2 = append(section2, p.parseStatement())
-		case 2:
-			section3 = append(section3, p.parseStatement())
-		case 3:
-			p.maxOccuranceError(token.COMMA, "ForExpression", p.curToken.Line, p.curToken.Col)
-			return nil
-		}
-		if p.peekTokenIs(token.COMMA) {
-			commaCounter++
-			p.nextToken()
-		}
-	}
-
-	if len(section2) == 0 && len(section3) == 0 { // only condition
-		fe.ForCondition = section1
-	} else if len(section3) == 0 { // only condition and postcondition
-		fe.ForCondition = section1
-		fe.ForPostcondition = section2
-	} else { // precondition, condition, and postcondition
-		fe.ForPrecondition = section1
-		fe.ForCondition = section2
-		fe.ForPostcondition = section3
-	}
-
-	p.nextToken()
-	fe.Body = p.parseBlockStatement()
-
-	return fe
-}
-
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{Token: p.curToken, Function: function}
 	exp.Arguments = p.parseExpressionList(token.RPAR)

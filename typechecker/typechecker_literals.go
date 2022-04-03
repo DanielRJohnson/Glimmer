@@ -20,18 +20,17 @@ func typeofFunctionLiteral(node *ast.FunctionLiteral, ctx *types.Context, bindNa
 
 	fun.ReturnType = node.ReturnType
 
-	fun.FnCtx = types.NewEnclosedContext(ctx.DeepCopy())
+	fun.FnCtx = types.NewEnclosedContext(ctx.DeepCopy(), &fun.ReturnType)
 	for idx, param := range node.Parameters {
 		fun.FnCtx.Set(param.Value, node.ParamTypes[idx])
 	}
 	if bindName != nil {
-		fun.FnCtx.Set(*bindName, fun)
+		fun.FnCtx.Set(*bindName, fun) // add identifier binding to function context for recursion
 	}
 
 	bodyType := Typeof(node.Body, fun.FnCtx)
-
-	if bodyType.String() != node.ReturnType.String() {
-		return &types.ErrorType{Msg: "function body type does not match return type", Line: node.Token.Line, Col: node.Token.Col}
+	if bodyType.Type() == types.ERROR { // retType enforced in BlockStatement
+		return bodyType
 	}
 
 	return fun

@@ -23,34 +23,6 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 	}
 }
 
-func evalForExpression(fe *ast.ForExpression, env *object.Environment) object.Object {
-	var returnVal object.Object = NULL
-
-	pre := evalStatements(fe.ForPrecondition, env)
-	if isError(pre) {
-		return pre
-	}
-
-	for {
-		cond := evalStatements(fe.ForCondition, env)
-		if isError(cond) {
-			return cond
-		}
-		if len(fe.ForCondition) > 0 && !isTruthy(cond) {
-			return returnVal
-		}
-		returnVal = evalLoopStatements(fe.Body.Statements, env)
-		if isError(returnVal) || returnVal.Type() == object.BREAK_OBJ {
-			return returnVal
-		}
-
-		post := evalStatements(fe.ForPostcondition, env)
-		if isError(post) {
-			return post
-		}
-	}
-}
-
 // if a condition is true, trueElifBranch returns (the first true branch, true), else (nil, false)
 func trueElifBranch(ie *ast.IfExpression, env *object.Environment) (*ast.BlockStatement, bool) {
 	for index, cond := range ie.ElifConditions {

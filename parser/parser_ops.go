@@ -33,11 +33,6 @@ func (p *Parser) Errors() []string {
 	return p.errors
 }
 
-func (p *Parser) maxOccuranceError(t token.TokenType, place string, line int, col int) {
-	msg := fmt.Sprintf("[%d,%d]: maximum number of %s reached in %s", line, col, t, place)
-	p.errors = append(p.errors, msg)
-}
-
 func (p *Parser) typeNotRecognizedError(t token.TokenType, line int, col int) {
 	msg := fmt.Sprintf("[%d,%d]: type not recognized: %s", line, col, t)
 	p.errors = append(p.errors, msg)
