@@ -19,6 +19,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseIfStatement()
 	case token.FOR:
 		return p.parseForStatement()
+	case token.WHILE:
+		return p.parseWhileStatement()
 	case token.BREAK:
 		br := &ast.BreakStatement{Token: p.curToken}
 		if p.peekTokenIs(token.SEMICOL) {
@@ -135,6 +137,23 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	stmt.Collection = p.parseExpression(LOWEST)
 
 	p.nextToken() // curtok = body
+	stmt.Body = p.parseBlockStatement()
+
+	return stmt
+}
+
+func (p *Parser) parseWhileStatement() *ast.WhileStatement {
+	stmt := &ast.WhileStatement{Token: p.curToken}
+
+	for !p.peekTokenIs(token.LBRACE) {
+		p.nextToken() // cur = IF , peek = first of cond
+		stmt.Condition = append(stmt.Condition, p.parseStatement())
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
 	stmt.Body = p.parseBlockStatement()
 
 	return stmt

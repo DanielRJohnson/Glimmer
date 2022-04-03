@@ -436,6 +436,13 @@ func TestForStatements(t *testing.T) {
 	}
 }
 
+func TestWhileStatements(t *testing.T) {
+	input := "x = 0; while x < 10 { x += 1 }; x"
+
+	evaluated := testEval(input)
+	testIntegerObject(t, evaluated, int64(10))
+}
+
 func TestReturnStatements(t *testing.T) {
 	tests := []struct {
 		input    string

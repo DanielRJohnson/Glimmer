@@ -43,6 +43,9 @@ func Typeof(node ast.Node, ctx *types.Context) types.TypeNode {
 	case *ast.ForStatement:
 		return typeofForStatement(node, ctx)
 
+	case *ast.WhileStatement:
+		return typeofWhileStatement(node, ctx)
+
 	case *ast.ExpressionStatement:
 		return Typeof(node.Expression, ctx)
 

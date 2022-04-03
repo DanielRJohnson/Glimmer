@@ -53,6 +53,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.ForStatement:
 		return evalForStatement(node, env)
 
+	case *ast.WhileStatement:
+		return evalWhileStatement(node, env)
+
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 

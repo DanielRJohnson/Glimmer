@@ -12,12 +12,24 @@ func typeofIfExpression(node *ast.IfExpression, ctx *types.Context) types.TypeNo
 	// return the matched
 	branchTypes := []types.TypeNode{}
 
+	for _, stmt := range node.Condition {
+		condType := Typeof(stmt, ctx)
+		if condType.Type() == types.ERROR {
+			return condType
+		}
+	}
 	trueType := Typeof(node.TrueBranch, ctx)
 	branchTypes = append(branchTypes, trueType)
 	if trueType.Type() == types.ERROR {
 		return trueType
 	}
-	for _, branch := range node.ElifBranches {
+	for i, branch := range node.ElifBranches {
+		for _, stmt := range node.ElifConditions[i] {
+			condType := Typeof(stmt, ctx)
+			if condType.Type() == types.ERROR {
+				return condType
+			}
+		}
 		elifType := Typeof(branch, ctx)
 		branchTypes = append(branchTypes, elifType)
 		if elifType.Type() == types.ERROR {

@@ -1109,6 +1109,39 @@ func TestForStatement(t *testing.T) {
 	testLiteralExpression(t, stmt.Body.Statements[0].(*ast.ExpressionStatement).Expression, "i")
 }
 
+func TestWhileStatement(t *testing.T) {
+	input := "while x < y { x }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	CheckParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.WhileStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.WhileStatement. got=%T", program.Statements[0])
+	}
+
+	if !testInfixExpression(t, stmt.Condition[0].(*ast.ExpressionStatement).Expression, "x", "<", "y") {
+		return
+	}
+	if len(stmt.Body.Statements) != 1 {
+		t.Errorf("body is not %d statements. got=%d\n", 1, len(stmt.Body.Statements))
+	}
+
+	body, ok := stmt.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("body.Statements[0] is not an ast.ExpressionStatement. got=%T", stmt.Body.Statements[0])
+	}
+	if !testIdentifier(t, body.Expression, "x") {
+		return
+	}
+}
+
 func TestBreakAndContinue(t *testing.T) {
 	input := "break; continue;"
 

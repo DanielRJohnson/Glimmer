@@ -97,6 +97,7 @@ aaaa
 ## If Expressions
  - Ife's are expressions in Glimmer that evaluate to the last statement of which branch gets evaluated
  - The condition of an ife is also multi-statement and evaluates to the last statement
+ - truthy values are not null, false, or zero
  - Any amount of "else ife" branches are allowed that are also have multi-statement conditions
  - Funcions are the only scope extenders, so the blocks of an ife operate in the same environment as its parent
 
@@ -141,6 +142,24 @@ i: 3 v^2: 9
 null # loops are statements, thus return null
 ```
 
+## While Loops
+ - Your standard while construct that we all need, as long as you're not an expert in lambda calculus
+ - However, we still have the extra pizazz of multi-statement conditions
+ - truthy values are not null, false, or zero
+
+```
+>> x = true; while x { print("PING"); x = false }
+PING
+null
+
+>> x = 0; while x += 1; x < 5 { print(x) }
+1
+2
+3
+4
+null
+```
+
 ## Other Builtins
  - Builtin functions can be found in `evaluator/builtins.go`
  - Many more are planned in the future, as well as a library structure
@@ -179,7 +198,7 @@ Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held ty
 
 # TODO
 Near:
-* While
+* something `in` collection == boolean
 * async-finish blocks?
 * OS interaction (exec, input, etc)
 * Imports & standard library/ more builtins

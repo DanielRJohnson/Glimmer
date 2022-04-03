@@ -59,6 +59,10 @@ func TestTypeofErrors(t *testing.T) {
 		{"pop(1)", "Static TypeError at [1,4]: Argument 1 to pop must be array, got=int"},
 		{"a = fn() -> int { return 3.3; 1 } ()", "Static TypeError at [1,17]: return type mismatching function type"},
 		{"a = fn() -> int { return 1; 3.3 } ()", "Static TypeError at [1,17]: return type mismatching function type"},
+		{"for i, v, k in [1] {}", "Static TypeError at [1,4]: For statements must have at most 2 loop variables"},
+		{"while 1 > []int {}", "Static TypeError at [1,9]: infix operator for 'int > array[int]' not found"},
+		{"if 1 > []int {}", "Static TypeError at [1,6]: infix operator for 'int > array[int]' not found"},
+		{"ife 1 > []int {}", "Static TypeError at [1,7]: infix operator for 'int > array[int]' not found"},
 	}
 
 	for _, tt := range tests {
@@ -125,6 +129,34 @@ func TestTypeofForStatements(t *testing.T) {
 		{"arr = [1,2,3,4]; for val in arr { 1 }", "NONE", "none"},
 		{`for key, val in {"a": 1, "b": 2} { 1 }`, "NONE", "none"},
 		{`dct = {"a": 1, "b": 2}; for key in dct { 1 }`, "NONE", "none"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := parser.New(l)
+		program := p.ParseProgram()
+		CheckParserErrors(t, p)
+		ctx := types.NewContext()
+
+		pType := Typeof(program, ctx)
+
+		if pType.Type() != tt.expectedType {
+			t.Errorf("pType is not %s, got=%s", tt.expectedString, pType.Type())
+		}
+
+		if pType.String() != tt.expectedString {
+			t.Errorf("type string does not match. want=%s, got=%s", tt.expectedString, pType.String())
+		}
+	}
+}
+
+func TestTypeofWhileStatements(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedType   types.GlimmerType
+		expectedString string
+	}{
+		{"while 1 > 2 { fn() -> none {} () }", "NONE", "none"},
 	}
 
 	for _, tt := range tests {

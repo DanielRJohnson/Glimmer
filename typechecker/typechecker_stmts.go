@@ -6,15 +6,27 @@ import (
 )
 
 func typeofIfStatement(node *ast.IfStatement, ctx *types.Context) types.TypeNode {
-	// get types of all branches
+	// get types of all branches and conditions
 	// error if they contain error
 	// return none
-
+	for _, stmt := range node.Condition {
+		condType := Typeof(stmt, ctx)
+		if condType.Type() == types.ERROR {
+			return condType
+		}
+	}
 	trueType := Typeof(node.TrueBranch, ctx)
 	if trueType.Type() == types.ERROR {
 		return trueType
 	}
-	for _, branch := range node.ElifBranches {
+
+	for i, branch := range node.ElifBranches {
+		for _, stmt := range node.ElifConditions[i] {
+			condType := Typeof(stmt, ctx)
+			if condType.Type() == types.ERROR {
+				return condType
+			}
+		}
 		elifType := Typeof(branch, ctx)
 		if elifType.Type() == types.ERROR {
 			return elifType
@@ -61,6 +73,21 @@ func typeofForStatement(node *ast.ForStatement, ctx *types.Context) types.TypeNo
 
 	if bt := Typeof(node.Body, ctx); bt.Type() == types.ERROR {
 		return bt
+	}
+
+	return NONE_T
+}
+
+func typeofWhileStatement(node *ast.WhileStatement, ctx *types.Context) types.TypeNode {
+	for _, stmt := range node.Condition {
+		condType := Typeof(stmt, ctx)
+		if condType.Type() == types.ERROR {
+			return condType
+		}
+	}
+	trueType := Typeof(node.Body, ctx)
+	if trueType.Type() == types.ERROR {
+		return trueType
 	}
 
 	return NONE_T

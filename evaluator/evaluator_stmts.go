@@ -74,6 +74,26 @@ func evalForDictStatement(lvs []*ast.Identifier, dict *object.Dict, body *ast.Bl
 	return NULL
 }
 
+func evalWhileStatement(ws *ast.WhileStatement, env *object.Environment) object.Object {
+	condition := evalStatements(ws.Condition, env)
+	if isError(condition) {
+		return condition
+	}
+
+	for isTruthy(condition) {
+		loop := Eval(ws.Body, env)
+		if isError(loop) || loop.Type() == object.RETURN_VALUE_OBJ ||
+			loop.Type() == object.BREAK_OBJ || loop.Type() == object.CONT_OBJ {
+			return loop
+		}
+		condition = evalStatements(ws.Condition, env)
+		if isError(condition) {
+			return condition
+		}
+	}
+	return NULL
+}
+
 func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object
 
