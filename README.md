@@ -197,7 +197,7 @@ Static TypeError at [1,5]: Argument 2 to push must be match Argument 1's held ty
 * V0.3: Added static typing, changing function syntax `fn() -> none { print("WOOHOO") }()`
 * V0.4: Resigned `for`, and added `if` (non-valued if statements), `while`, and `range` 
 
-# TODO
+# Possible Future Work
 Near:
 * async-finish blocks?
 * OS interaction (exec, input, etc)
